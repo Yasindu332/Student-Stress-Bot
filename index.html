@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Student Stress Bot 🧠</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .chat-container { width: 100%; max-width: 400px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); overflow: hidden; display: flex; flex-direction: column; height: 80vh; position: relative; }
+        .chat-header { background: #0078ff; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; position: relative; }
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 10px 15px; border-radius: 20px; max-width: 80%; font-size: 0.95em; line-height: 1.4; }
+        .bot-message { background: #e9e9eb; color: black; align-self: flex-start; border-bottom-left-radius: 5px; }
+        .user-message { background: #0078ff; color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
+        .input-area { padding: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; background: #f9f9f9; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; background: #0078ff; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s; margin: 5px; }
+        .btn:hover { background: #005ecb; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .options { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+        .option-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #0078ff; background: white; color: #0078ff; cursor: pointer; font-weight: bold; }
+        .option-btn:hover { background: #0078ff; color: white; }
+        .clear-btn { background: #ff4444; font-size: 0.8em; padding: 5px 10px; position: absolute; right: 10px; top: 15px; border-radius: 5px; color: white; border: none; cursor: pointer; }
+        
+        /* Modal Styles */
+        .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; width: 80%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeIn 0.3s; display: flex; flex-direction: column; align-items: center; }
+        .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
+        .modal-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-yes { background: #ff4444; color: white; }
+        .btn-no { background: #ddd; color: black; }
+        .modal-img { width: 80px; height: auto; margin-bottom: 15px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        🤖 Stress Bot
+        <button class="clear-btn" onclick="showResetModal()" title="Clear History">🗑️ Reset</button>
+    </div>
+    <div class="chat-box" id="chat-box">
+        </div>
+    <div class="input-area" id="input-area">
+        </div>
+
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABW2SURBVHgB7d1/bBznfcDx5+6SSOqWZYmWbFm2o9hOYie2nMSyE9eJ08R1k9Z1GidG0jZF0z9K/2jT/tOkQds0aAr0T4G2QIE2aAr0T9E0cR0nTmM7rhPbUeLYjh3HlmVZlCiJkiged3e/F6+UKEqiuN/d2917Hwgw2M/d291778P78O7u7l0hAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgJc3n8/1r1679tF6v/1S9Xn+8Xq8frtfrB+v1+nS9Xn+gXq8fqNfrB9vt9t52u703hLBn3L83hLB73P+O+78hhO0hhJ0hhO0hhO0hhK0hhC0hhM0hhM0hhE0hhE0hhInx/48hhPF/bwohTAwMDIwNDQ2NDQ8Pj42MjIyNjo6Ojo+Pj09MTIxPTU2NT09PT8zMzEzOzc1NzM/PTy4sLEw2Go2J5eXliXK5PFGv1ycm/39hYWE8hDA+MTERQgiTk5MTIYTJycl2CCFMTEy0QwhhYmKiMzExMRFC6ExMTIyFEMbHx8dCCGNjY2MhhNHR0bEQwujoaDuEMDo6OhZCGBkdHW2HEEZGRtqjo6PtkZGRdsbGxtqjo6Njo6OjY2NjY2Njo6OjY2NjY6Ojo6Pj4+Pj4+Pj4+Pj4+PjE+Pj4xMTExMTExMTE1NTU1PT09PTM9PT0zMzMzOzs7Ozc3Nzc/Pz8/PzCwsLCwsLC4uLi4uLi8vLy8vLy+Vyec3y8vLqcrn86nK5/Npyufzrcrn8q3K5/Mvlcvm/l8vl/1oul39ZLpd/US6Xf1Eul/9ruVz+r+Vy+b+Wy+V/Wy6X/225XP635XL5X8vl8r8sl8v/vFwuf1Aul/+xXC7/Q7lc/vvlcjl0Op3Q6XRCp9MJnU4ndDqd0Ol0QqfTCZ1OJ3Q6ndDpdEKn0wk3bt4IN27cCNeuXQs3b94MN2/eDLdu3Qq3b98O3W43dDqdsGXLltDpdEK32w3dbjf0er3Q6/VCr9cLvV4v9Hq90Ov1Qq/XC71eL/R6vdDr9UKv1wu9Xi/0er3Q6/VCr9cLvV4v9Hq9sH379tDr9UKv1wu9Xi/0er2wY8eO0O/3Q7/fD/1+P+zYsSP0+/3Q7/dDv98P/X4/7Ny5M+zcuTP0+/3Q7/fDzp07Q7/fDzt37gz9fj/s3Lkz9Pv90O/3w65du8KuXbtCv98Pu3btCrt27Qq7du0Ku3btCrt27Qq7d+8Oe/bsCXv27Al79uwJe/fuDXv37g179+4Ne/fuDXv37g179+4N+/fvD/v37w/79+8P+/fvD/v37w8HDhwIBw4cCAcOHAgHDhwIhw4dCocOHQqHDh0Khw8fDocPHw6HDx8Ohw8fDocPHw5PPfVUOHLkSDhy5Eg4cuRIOHLkSDh69Gg4evRoOHr0aDh69Gg4evRoOHbsWDh27Fg4duxYOHbsWDh+/Hg4fvx4OH78eDh+/Hg4fvx4OH78eDh+/Hg4cfJkOHnyZDh58mQ4efJkOHXqVDh16lQ4depUOHXqVDh16lQ4depUOH36dDh9+nQ4ffp0OH36dDh9+nQ4ffp0OH36dDh9+nQ4c+ZMXLduXdywYUPcsGFD3LBhQ9y4cWPcuHFj3LhxY9y0aVPctGlT3LRpU9y8eXPcvHlz3Lx5c9yyZUvcvHlz3LJlS9yyZUvcvHlz3LJlS9x6dWvcunVr3Lp1a9y2bVvctm1b3LZtW9y2bVvctm1b3L59e9y+fXvcvn173L59e9yxY0fcsWNH3LFjR9yxY0fcad6/Y8eOuGvXrrhr1664a9euuGvXrjg4OBgHBwfjoaGhODQ0FIeGhuLw8HAcGhqKQ0NDcWhoKA4PD8fBwcF4aGgoDg0NxcHBwXhoaCgeHByMh4eH4+Hh4Xh4eDgeHh6Oh4eH4+Hh4Xh4eDgeHh6Oh4eH4+Hh4fjgwYNxeHg4Dg8Px+Hh4Tg8PByHh4fj8PBwHB4ejsPDw3F4eDgODw/H4eHhODw8HIeHh+Pw8HAcHh6Ow8PDcXh4OA4PD8fh4eE4PDwch4eH4+DgYBwcHIyDg4NxcHAwDg4OxsHBwTg4OBgHBwfjoaGhODg4GAcHB+Pg4GAcHBymh4aG4tDQ0H8PDQ39+6Ghof86NDT0r4eGhv7l0NDQ/z00NPTPh4aG/unQ0NA/Hhoa+sdDQ0P/8vDhw/90+PDh/3j48OF/evjw4X98+PDh/3j48OF/fPjw4X985MiR/3DkyJH/cOTIkf9w5MiR/3DkyJH/cOTIkf9w9OjR/3j06NH/ePTo0f949OjR/3j06NH/ePTo0f949OjR/3j06NH/ePTo0f947Nix/3Ds2LH/cOzYsf9w7Nix/3Ds2LH/cOzYsf9w/Pjx/3D8+PH/cPz48f9w/Pjx/3D8+PH/cPz48f9w/Pjx/3D8+PH/cPz48f9w/Pjx/3DixIn/cOLEif9w4sSJ/3DixIn/cOLEif9w4sSJ/3DixIn/cOLEif9w4sSJ/3DixIn/cOLEif9w6tSp/3Dq1Kn/cOrUqf9w6tSp/3Dq1Kn/cOrUqf9w6tSp/3Dq1Kn/cOrUqf9w6tSp/3Dq1Kn/cOrUqf9w+vTp/3D69On/cPr06f9w+vTp/3D69On/cPr06f9w+vTp/3D69On/cPr06f9w+vTp/3D69On/cObMmf+eM2fOvz1z5sy/PXPmzL89c+bMv82eOfNvz54582/Pnjnzb8+eOfNvz54582/Pnjnzb5988sm/ffLJJ//2ySef/Nsnn3zyb5988sm/ffLJJ//2ySef/Nsnn3zyb5988sm/ffLJJ//2ySef/Nsnn3zyb5988sm/ffrpp//26aef/tunn376b59++um/ffrpp//26aef/tunn376b59++um/ffrpp//26aef/tunn376b59++um/ffrpp//22Wef/dtzzz33t+ee+884d+7cfz/33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3P/wPYb+R8a7vXoQAAAABJRU5ErkJggg==" alt="Warning" class="modal-img">
+            <p id="modalText">⚠️ Are you sure you want to delete all history?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-yes" onclick="confirmReset()">✅ Yes</button>
+                <button class="modal-btn btn-no" onclick="closeResetModal()">❌ No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const resources = {
+        en: {
+            intro: "👋 Hello! I can help you check your stress level. 🧘‍♂️<br>Please select your language. 🌐",
+            q1: "1. 😴 Rate your <b>Sleep Quality</b> (1-5)<br>1=Bad 😫 ... 5=Very Good 🤩",
+            q2: "2. 🤕 How many times a week do you suffer <b>headaches</b>?<br>1=Low 😌 ... 5=High 🤯",
+            q3: "3. 📚 How is your <b>Academic Performance</b>?<br>1=Poor 📉 ... 5=Excellent 🏆",
+            q4: "4. 🎒 How do you feel about your <b>Study Load</b>?<br>1=Light 🪶 ... 5=Heavy 🏋️",
+            q5: "5. ⚽ How many times a week do you do <b>Extracurricular Activities</b>? (1-5) 🎨",
+            result: "📊 Analysis complete...<br><br><b>🎯 Your stress level: {score}/5</b><br>{comment}<br><br><b>📉 Trend:</b> {trend}",
+            low: "✨ Your stress level is <b>Low</b>. Great job! 🌸",
+            mod: "⚠️ Your stress level is <b>Moderate</b>. Keep an eye on it. 👀",
+            high: "🚨 Your stress level is <b>High</b>. Please take a break! 🛌💆‍♂️",
+            restart: "🔄 Start Again",
+            trend_better: "🎉 Good news! Your stress is lower than last time. 📉",
+            trend_worse: "😟 Warning! Your stress is higher than last time. 📈",
+            trend_same: "⚖️ Your stress level is the same as last time.",
+            trend_first: "📝 This is your first record.",
+            reset_confirm: "⚠️ Are you sure you want to delete all history? 🗑️",
+            reset_done: "✅ History cleared."
+        },
+        si: {
+            intro: "👋 ආයුබෝවන්! මම ඔබේ ආතති මට්ටම (Stress Level) පරීක්ෂා කිරීමට උදව් කරන්නෙමි. 🧘‍♂️<br>කරුණාකර භාෂාවක් තෝරන්න. 🌐",
+            q1: "1. 😴 ඔබේ <b>නින්දේ ගුණාත්මකභාවය</b> (Sleep Quality) 1 සිට 5 දක්වා අගය කරන්න.<br>5 = ඉතා හොඳයි 🤩",
+            q2: "2. 🤕 සතියකට කී වතාවක් ඔබට <b>හිසරදය</b> (Headaches) ඇති වේද?<br>1 = ඉතා අඩු 😌 ... 5 = ඉතා වැඩි 🤯",
+            q3: "3. 📚 ඔබේ <b>අධ්‍යාපන කාර්ය සාධනය</b> (Academic Performance) කෙසේද?<br>1 = දුර්වල 📉 ... 5 = ඉතා හොඳ 🏆",
+            q4: "4. 🎒 ඔබේ <b>අධ්‍යයන බර</b> (Study Load) ඔබට දැනෙන්නේ කෙසේද?<br>1 = සැහැල්ලු 🪶 ... 5 = ඉතා බර 🏋️",
+            q5: "5. ⚽ සතියකට කී වතාවක් <b>බාහිර ක්‍රියාකාරකම්වල</b> (Extracurricular Activities) යෙදෙනවාද? (1-5) 🎨",
+            result: "📊 විශ්ලේෂණය අවසන්...<br><br><b>🎯 ඔබේ ආතති මට්ටම: {score}/5</b><br>{comment}<br><br><b>📉 පෙර වාර්තා සැසඳීම:</b> {trend}",
+            low: "✨ ඔබේ ආතති මට්ටම <b>අඩුයි</b> (Low). නියමයි! 🌸",
+            mod: "⚠️ ඔබේ ආතති මට්ටම <b>සාමාන්‍යයි</b> (Moderate). 👀",
+            high: "🚨 ඔබේ ආතති මට්ටම <b>වැඩියි</b> (High). විවේකයක් ගැනීම සුදුසුයි. 🛌💆‍♂️",
+            restart: "🔄 නැවත පටන් ගන්න",
+            trend_better: "🎉 හොඳයි! කලින් වතාවට වඩා අඩුවී ඇත. 📉",
+            trend_worse: "😟 පරිස්සම් වන්න! කලින් වතාවට වඩා වැඩිවී ඇත. 📈",
+            trend_same: "⚖️ කලින් වතාවට සමානයි.",
+            trend_first: "📝 මෙය ඔබගේ පළමු පරීක්ෂාවයි.",
+            reset_confirm: "⚠️ ඔබට සියලු ඉතිහාසය මැකීමට අවශ්‍ය බව විශ්වාසද? 🗑️",
+            reset_done: "✅ ඉතිහාසය මකා දමන ලදී."
+        },
+        ta: {
+            intro: "👋 வணக்கம்! உங்கள் மன அழுத்த அளவை சரிபார்க்க நான் உதவ முடியும். 🧘‍♂️<br>மொழியைத் தேர்ந்தெடுக்கவும். 🌐",
+            q1: "1. 😴 உங்கள் <b>தூக்கத்தின் தரத்தை</b> மதிப்பிடவும் (1-5).<br>5 = மிக நல்லது 🤩",
+            q2: "2. 🤕 வாரத்திற்கு எத்தனை முறை <b>தலைவலி</b> ஏற்படுகிறது?<br>1 = மிகக் குறைவு 😌 ... 5 = மிக அதிகம் 🤯",
+            q3: "3. 📚 உங்கள் <b>கல்விச் செயல்பாடு</b> எப்படி உள்ளது?<br>1 = மோசம் 📉 ... 5 = மிக நன்று 🏆",
+            q4: "4. 🎒 உங்கள் <b>படிப்புச் சுமை</b> பற்றி என்ன நினைக்கிறீர்கள்?<br>1 = குறைவு 🪶 ... 5 = அதிகம் 🏋️",
+            q5: "5. ⚽ வாரத்திற்கு எத்தனை முறை <b>சாராத செயல்பாடுகளில்</b> ஈடுபடுகிறீர்கள்? (1-5) 🎨",
+            result: "📊 பகுப்பாய்வு முடிந்தது...<br><br><b>🎯 உங்கள் மன அழுத்த அளவு: {score}/5</b><br>{comment}<br><br><b>📉 ஒப்பீடு:</b> {trend}",
+            low: "✨ உங்கள் மன அழுத்தம் <b>குறைவு</b>. நன்று! 🌸",
+            mod: "⚠️ உங்கள் மன அழுத்தம் <b>மிதமானது</b>. 👀",
+            high: "🚨 உங்கள் மன அழுத்தம் <b>அதிகம்</b>. ஓய்வு தேவை. 🛌💆‍♂️",
+            restart: "🔄 மீண்டும் தொடங்க",
+            trend_better: "🎉 நல்லது! கடந்த முறையை விட குறைவு. 📉",
+            trend_worse: "😟 கவனம்! கடந்த முறையை விட அதிகம். 📈",
+            trend_same: "⚖️ கடந்த முறை போலவே உள்ளது.",
+            trend_first: "📝 இது உங்கள் முதல் பதிவு.",
+            reset_confirm: "⚠️ எல்லா வரலாற்றையும் நீக்க விரும்புகிறீர்களா? 🗑️",
+            reset_done: "✅ வரலாறு அழிக்கப்பட்டது."
+        }
+    };
+
+    const questions = ['q1', 'q2', 'q3', 'q4', 'q5'];
+    
+    let currentStep = 0;
+    let answers = {};
+    let language = 'en';
+
+    function addMessage(text, sender) {
+        const chatBox = document.getElementById('chat-box');
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', sender === 'bot' ? 'bot-message' : 'user-message');
+        msgDiv.innerHTML = text;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function init() {
+        document.getElementById('chat-box').innerHTML = '';
+        currentStep = 0;
+        answers = {};
+        language = 'en';
+        
+        addMessage("🌐 Please select a language / භාෂාව තෝරන්න / மொழியைத் தேர்ந்தெடுக்கவும்", 'bot');
+        showLanguageOptions();
+    }
+
+    function showLanguageOptions() {
+        const inputArea = document.getElementById('input-area');
+        inputArea.innerHTML = '';
+        
+        const languages = [
+            { code: 'en', label: '🇺🇸 English' },
+            { code: 'si', label: '🇱🇰 සිංහල' },
+            { code: 'ta', label: '🇱🇰 தமிழ்' }
+        ];
+
+        languages.forEach(lang => {
+            const btn = document.createElement('button');
+            btn.classList.add('btn');
+            btn.innerHTML = lang.label;
+            btn.onclick = () => setLanguage(lang.code);
+            inputArea.appendChild(btn);
+        });
+    }
+
+    function setLanguage(lang) {
+        language = lang;
+        const labels = { en: "🇺🇸 English", si: "🇱🇰 සිංහල", ta: "🇱🇰 தமிழ்" };
+        addMessage(labels[lang], 'user');
+        setTimeout(() => {
+             addMessage(resources[language].intro, 'bot');
+             setTimeout(() => {
+                 askQuestion();
+             }, 800);
+        }, 500);
+    }
+
+    function askQuestion() {
+        const qKey = questions[currentStep];
+        addMessage(resources[language][qKey], 'bot');
+        showOptions();
+    }
+
+    function showOptions() {
+        const inputArea = document.getElementById('input-area');
+        inputArea.innerHTML = '';
+        
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('options');
+        for (let i = 1; i <= 5; i++) {
+            const btn = document.createElement('button');
+            btn.classList.add('option-btn');
+            btn.innerText = i;
+            btn.onclick = () => handleInput(i);
+            optionsDiv.appendChild(btn);
+        }
+        inputArea.appendChild(optionsDiv);
+    }
+
+    function handleInput(value) {
+        const keyMap = ['sleep', 'headache', 'academic', 'load', 'extra'];
+        answers[keyMap[currentStep]] = value;
+
+        addMessage(value.toString(), 'user');
+        
+        currentStep++;
+        if (currentStep < questions.length) {
+            setTimeout(() => {
+                askQuestion();
+            }, 500);
+        } else {
+            calculateStress();
+        }
+    }
+
+    function calculateStress() {
+        const intercept = 1.59;
+        const w_sleep = 0.18;
+        const w_head = -0.07;
+        const w_acad = -0.04;
+        const w_load = 0.38;
+        const w_extra = -0.015;
+
+        let score = intercept + 
+                    (w_sleep * answers.sleep) + 
+                    (w_head * answers.headache) + 
+                    (w_acad * answers.academic) + 
+                    (w_load * answers.load) + 
+                    (w_extra * answers.extra);
+
+        let roundedScore = Math.round(score);
+        if (roundedScore < 1) roundedScore = 1;
+        if (roundedScore > 5) roundedScore = 5;
+
+        const history = JSON.parse(localStorage.getItem('stress_bot_history')) || [];
+        const lastEntry = history.length > 0 ? history[history.length - 1] : null;
+        
+        let trendKey = "trend_first";
+        if (lastEntry) {
+            if (roundedScore < lastEntry.score) trendKey = "trend_better";
+            else if (roundedScore > lastEntry.score) trendKey = "trend_worse";
+            else trendKey = "trend_same";
+        }
+
+        history.push({ date: new Date().toISOString(), score: roundedScore });
+        localStorage.setItem('stress_bot_history', JSON.stringify(history));
+
+        let comment = "";
+        if (roundedScore <= 2) comment = resources[language].low;
+        else if (roundedScore === 3) comment = resources[language].mod;
+        else comment = resources[language].high;
+
+        const trendText = resources[language][trendKey];
+        const resultText = resources[language].result
+            .replace('{score}', roundedScore)
+            .replace('{comment}', comment)
+            .replace('{trend}', trendText);
+
+        setTimeout(() => {
+            addMessage(resultText, 'bot');
+            showRestartOption();
+        }, 800);
+    }
+
+    function showRestartOption() {
+        const inputArea = document.getElementById('input-area');
+        inputArea.innerHTML = '';
+        const btn = document.createElement('button');
+        btn.classList.add('btn');
+        btn.innerHTML = resources[language].restart;
+        btn.onclick = () => init();
+        inputArea.appendChild(btn);
+    }
+
+    function showResetModal() {
+        const modal = document.getElementById('resetModal');
+        const text = document.getElementById('modalText');
+        const langCode = language || 'en';
+        text.innerHTML = resources[langCode].reset_confirm;
+        modal.style.display = 'flex';
+    }
+
+    function closeResetModal() {
+        document.getElementById('resetModal').style.display = 'none';
+    }
+
+    function confirmReset() {
+        localStorage.removeItem('stress_bot_history');
+        closeResetModal();
+        alert(resources[language || 'en'].reset_done);
+        init();
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
