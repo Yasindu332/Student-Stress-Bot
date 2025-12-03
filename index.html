@@ -3,354 +3,624 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MindMate AI Final</title>
+    <title>MindMate AI Ultimate</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Noto+Sans+Sinhala:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --primary: #4A90E2;
-            --bg-grad: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text: #333;
+            --primary-color: #4A90E2;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
 
-        body.model-friend { --primary: #FF6B6B; --bg-grad: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
-        body.model-teacher { --primary: #4A90E2; --bg-grad: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-        body.model-zen { --primary: #66BB6A; --bg-grad: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+        /* Themes */
+        body.model-friend { --primary-color: #FF6B6B; --bg-gradient: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
+        body.model-teacher { --primary-color: #4A90E2; --bg-gradient: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+        body.model-zen { --primary-color: #66BB6A; --bg-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
 
         body {
             font-family: 'Poppins', 'Noto Sans Sinhala', sans-serif;
-            margin: 0; background: var(--bg-grad); color: var(--text);
-            height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center;
-            transition: background 0.5s;
+            background: var(--bg-gradient);
+            height: 100vh;
+            overflow: hidden;
+            color: #333;
+            transition: background 0.5s ease;
         }
 
-        .app {
-            width: 100%; height: 100%; background: rgba(255,255,255,0.25);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            display: flex; flex-direction: column; position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        @media (min-width: 600px) { .app { width: 400px; height: 90vh; border-radius: 30px; border: 1px solid rgba(255,255,255,0.4); } }
-
-        .header {
-            padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.6); border-bottom: 1px solid rgba(255,255,255,0.2);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .logo { font-weight: 800; font-size: 1.2rem; color: var(--primary); letter-spacing: 1px; }
-        .icon-btn { background: white; border: none; padding: 10px; border-radius: 50%; cursor: pointer; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
-        .icon-btn:hover { transform: scale(1.1); }
-
-        .content { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none; }
-        .content::-webkit-scrollbar { display: none; }
-
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-bottom: 50px; }
-        .card {
-            background: var(--card-bg); border-radius: 15px; padding: 20px; text-align: center;
-            cursor: pointer; transition: 0.2s; border: 1px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .card i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
-        .card span { font-weight: 600; font-size: 0.9rem; }
-
-        .btn-main {
-            width: 100%; padding: 15px; border: none; border-radius: 12px;
-            background: var(--primary); color: white; font-weight: bold; font-size: 1rem;
-            cursor: pointer; margin-top: 10px; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .btn-main:active { transform: scale(0.98); }
-
-        .modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f4f7f6; z-index: 100; display: none; flex-direction: column;
-        }
-        .modal-head {
-            padding: 20px; background: white; font-weight: bold; font-size: 1.1rem;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
-
-        input, textarea {
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px;
-            margin-bottom: 10px; font-family: inherit; font-size: 1rem; box-sizing: border-box;
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.9);
         }
 
-        .view { display: none; animation: fadeIn 0.4s; }
-        .view.active { display: block; }
+        /* Full Screen Container */
+        .app-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .navbar {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Content Area */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            /* Hide Scrollbar */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .main-content::-webkit-scrollbar { display: none; }
+
+        /* Feature Icons */
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        /* Views */
+        .view-section { display: none; animation: fadeIn 0.4s; }
+        .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .ttt-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 250px; margin: 20px auto; }
-        .ttt-cell {
-            aspect-ratio: 1; background: white; border-radius: 10px;
-            font-size: 2.5rem; font-weight: bold; color: var(--primary);
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        /* Bootstrap Modal Overrides for Glass */
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: none;
         }
-        .todo-item { background: white; padding: 10px; border-radius: 8px; margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center; }
+        .modal-header { border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+        /* Tic Tac Toe */
+        .ttt-cell {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: 0.2s;
+        }
+        .ttt-cell:hover { background: #e9ecef; }
+        .ttt-cell.taken { background: #dee2e6; cursor: not-allowed; }
+
+        /* Animations */
+        @keyframes breathe { 0%,100% {transform:scale(1)} 50% {transform:scale(1.5)} }
+        
+        /* Floating Emoji */
+        .floating-emoji { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100% {transform:translateY(0)} 50% {transform:translateY(-10px)} }
+
     </style>
 </head>
 <body class="model-friend">
 
-<div class="app">
-    <div class="header">
-        <button class="icon-btn" onclick="goHome()"><i class="fas fa-home"></i></button>
-        <div class="logo">MindMate</div>
-        <button class="icon-btn" onclick="openModal('models')"><i class="fas fa-robot"></i></button>
-    </div>
-
-    <div class="content">
-        <div id="view-home" class="view active">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 id="greet">Hi Student! 👋</h2>
-                <p id="model-disp" style="font-size: 0.8rem; background: rgba(255,255,255,0.5); padding: 5px 10px; border-radius: 20px; display: inline-block;">Current: Friend</p>
-                <button class="btn-main" onclick="startCheckup()" id="btn-start">Start Analysis</button>
+    <div class="app-container">
+        <nav class="navbar navbar-light fixed-top shadow-sm glass">
+            <div class="container-fluid">
+                <button class="btn btn-light rounded-circle shadow-sm" onclick="goHome()"><i class="fas fa-home text-primary"></i></button>
+                <span class="navbar-brand mb-0 h1 fw-bold text-primary mx-auto">MindMate AI</span>
+                <button class="btn btn-light rounded-circle shadow-sm" onclick="showModal('modelsModal')"><i class="fas fa-robot text-primary"></i></button>
             </div>
+        </nav>
 
-            <div class="grid">
-                <div class="card" onclick="openModal('game')"><i class="fas fa-gamepad"></i><span id="l_game">Tic Tac AI</span></div>
-                <div class="card" onclick="openModal('todo')"><i class="fas fa-check-square"></i><span id="l_todo">Tasks</span></div>
-                <div class="card" onclick="openModal('timer')"><i class="fas fa-clock"></i><span id="l_timer">Pomodoro</span></div>
-                <div class="card" onclick="openModal('sleep')"><i class="fas fa-moon"></i><span id="l_sleep">Sleep Calc</span></div>
-                <div class="card" onclick="openModal('journal')"><i class="fas fa-book"></i><span id="l_journal">Journal</span></div>
-                <div class="card" onclick="openModal('draw')"><i class="fas fa-paint-brush"></i><span id="l_draw">Draw</span></div>
-                <div class="card" onclick="openModal('breath')"><i class="fas fa-wind"></i><span id="l_breath">Breathe</span></div>
-                <div class="card" onclick="openModal('bmi')"><i class="fas fa-weight"></i><span id="l_bmi">BMI</span></div>
-                <div class="card" onclick="openModal('exam')"><i class="fas fa-calendar-day"></i><span id="l_exam">Exam</span></div>
-                <div class="card" onclick="openModal('settings')"><i class="fas fa-language"></i><span id="l_lang">Language</span></div>
-            </div>
-        </div>
-
-        <div id="view-quiz" class="view">
-            <div style="background: white; padding: 20px; border-radius: 15px; text-align: center;">
-                <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px;">
-                    <h2 id="q-text" style="font-size:1.1rem; margin:0;">Question</h2>
-                    <i class="fas fa-volume-up" style="color:var(--primary); cursor:pointer;" onclick="speakQ()"></i>
+        <main class="main-content container pt-5 mt-4">
+            
+            <div id="view-home" class="view-section active text-center">
+                <div class="py-4">
+                    <h1 id="greet" class="fw-bold mb-2">Hi Student! 👋</h1>
+                    <span id="model-disp" class="badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill">Current: Friend</span>
                 </div>
-                <div style="font-size: 3rem; margin-bottom: 20px;">🤔</div>
-                
-                <div style="display:grid; grid-template-columns: repeat(6,1fr); gap:5px;">
-                    <button class="btn-main" style="margin:0; padding:10px; background:#e0e0e0; color:#333;" onclick="answer(0)">0</button>
-                    <button class="btn-main" style="margin:0; padding:10px; background:#d0d0d0; color:#333;" onclick="answer(1)">1</button>
-                    <button class="btn-main" style="margin:0; padding:10px; background:#c0c0c0; color:#333;" onclick="answer(2)">2</button>
-                    <button class="btn-main" style="margin:0; padding:10px; background:#b0b0b0; color:#333;" onclick="answer(3)">3</button>
-                    <button class="btn-main" style="margin:0; padding:10px; background:#a0a0a0; color:white;" onclick="answer(4)">4</button>
-                    <button class="btn-main" style="margin:0; padding:10px; background:#909090; color:white;" onclick="answer(5)">5</button>
+
+                <div class="d-grid gap-2 col-lg-6 mx-auto mb-4">
+                    <button class="btn btn-primary btn-lg shadow rounded-pill p-3 fw-bold" onclick="startCheckup()" id="btn-start">
+                        <i class="fas fa-stethoscope me-2"></i> Start Analysis
+                    </button>
                 </div>
-                <p style="margin-top:10px; font-size:0.8rem; color:#666;">0 = No | 5 = Very Much</p>
+
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('gameModal')">
+                            <i class="fas fa-gamepad feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_game">Tic Tac AI</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('todoModal')">
+                            <i class="fas fa-check-square feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_todo">Tasks</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('timerModal')">
+                            <i class="fas fa-clock feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_timer">Pomodoro</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('sleepModal')">
+                            <i class="fas fa-moon feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_sleep">Sleep Calc</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('journalModal')">
+                            <i class="fas fa-book feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_journal">Journal</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('drawModal')">
+                            <i class="fas fa-paint-brush feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_draw">Draw</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('breathModal')">
+                            <i class="fas fa-wind feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_breath">Breathe</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('bmiModal')">
+                            <i class="fas fa-weight feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_bmi">BMI</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('examModal')">
+                            <i class="fas fa-calendar-day feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_exam">Exam</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card glass-card h-100 text-center p-3" onclick="showModal('settingsModal')">
+                            <i class="fas fa-language feature-icon"></i>
+                            <span class="fw-bold d-block" id="l_lang">Language</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-quiz" class="view-section container" style="max-width: 600px;">
+                <div class="card glass-card shadow p-4 text-center">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <h4 id="q-text" class="fw-bold mb-0 me-2">Question?</h4>
+                        <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="speakQ()"><i class="fas fa-volume-up"></i></button>
+                    </div>
+                    <div class="display-1 floating-emoji mb-4">🤔</div>
+                    
+                    <p class="text-muted small">0 = No / 5 = Very Much</p>
+                    <div class="row g-2">
+                        <div class="col-2"><button class="btn btn-outline-dark w-100 py-3 fw-bold" onclick="answer(0)">0</button></div>
+                        <div class="col-2"><button class="btn btn-outline-dark w-100 py-3 fw-bold" onclick="answer(1)">1</button></div>
+                        <div class="col-2"><button class="btn btn-outline-dark w-100 py-3 fw-bold" onclick="answer(2)">2</button></div>
+                        <div class="col-2"><button class="btn btn-outline-dark w-100 py-3 fw-bold" onclick="answer(3)">3</button></div>
+                        <div class="col-2"><button class="btn btn-outline-dark w-100 py-3 fw-bold" onclick="answer(4)">4</button></div>
+                        <div class="col-2"><button class="btn btn-outline-dark w-100 py-3 fw-bold" onclick="answer(5)">5</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-result" class="view-section container text-center" style="max-width: 600px;">
+                <div class="card glass-card shadow p-5">
+                    <h1 class="display-1 fw-bold text-primary" id="res-score">0%</h1>
+                    <h3 class="mb-4" id="res-status">Normal</h3>
+                    <div class="alert alert-light border shadow-sm text-start" id="res-advice">
+                        Advice loading...
+                    </div>
+                    <button class="btn btn-primary btn-lg rounded-pill mt-3" onclick="goHome()" id="btn-home">Back Home</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="h_lang">Language</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="setLang('en')">English</button>
+                    <button class="btn btn-outline-primary" onclick="setLang('si')">සිංහල</button>
+                    <button class="btn btn-outline-primary" onclick="setLang('ta')">தமிழ்</button>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div id="view-result" class="view" style="text-align:center;">
-            <div style="background: white; padding: 30px; border-radius: 20px;">
-                <h1 id="res-score" style="color:var(--primary); font-size:3.5rem;">0%</h1>
-                <h3 id="res-status">Normal</h3>
-                <div id="res-advice" style="background:#f9f9f9; padding:15px; border-radius:10px; text-align:left; margin:15px 0; border-left:4px solid var(--primary);">Loading...</div>
-                <button class="btn-main" onclick="goHome()" id="btn-home">Home</button>
+    <div class="modal fade" id="modelsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="h_models">Select AI Model</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="txt-model-inst" class="text-muted small">Choose your advisor:</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-danger text-white p-3 text-start" onclick="setModel('friend')"><i class="fas fa-user-friends me-2"></i> <span id="m-friend">Friend</span></button>
+                        <button class="btn btn-primary text-white p-3 text-start" onclick="setModel('teacher')"><i class="fas fa-chalkboard-teacher me-2"></i> <span id="m-teacher">Teacher</span></button>
+                        <button class="btn btn-success text-white p-3 text-start" onclick="setModel('zen')"><i class="fas fa-spa me-2"></i> <span id="m-zen">Zen Master</span></button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="settings" class="modal">
-        <div class="modal-head"><span id="h_lang">Language</span> <i class="fas fa-times" onclick="closeModal('settings')"></i></div>
-        <div class="modal-body">
-            <button class="btn-main" style="background:white; color:#333; border:1px solid #ddd;" onclick="setLang('en')">English</button>
-            <button class="btn-main" style="background:white; color:#333; border:1px solid #ddd;" onclick="setLang('si')">සිංහල</button>
-            <button class="btn-main" style="background:white; color:#333; border:1px solid #ddd;" onclick="setLang('ta')">தமிழ்</button>
+    <div class="modal fade" id="gameModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="h_game">Tic Tac Toe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 id="ttt-msg" class="mb-3 text-primary">Your Turn (X)</h4>
+                    <div class="row g-2 justify-content-center" style="max-width: 300px; margin: auto;" id="ttt-board">
+                        </div>
+                    <button class="btn btn-primary mt-3" onclick="initTTT()" id="btn-restart">Restart</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="models" class="modal">
-        <div class="modal-head"><span id="h_models">Model</span> <i class="fas fa-times" onclick="closeModal('models')"></i></div>
-        <div class="modal-body">
-            <p id="txt-model-inst">Choose advisor:</p>
-            <div class="card" onclick="setModel('friend')" style="margin-bottom:10px; background:#FF9A9E; color:white;"><i class="fas fa-user-friends" style="color:white;"></i><span id="m-friend">Friend (Kind)</span></div>
-            <div class="card" onclick="setModel('teacher')" style="margin-bottom:10px; background:#a1c4fd; color:white;"><i class="fas fa-chalkboard-teacher" style="color:white;"></i><span id="m-teacher">Teacher (Strict)</span></div>
-            <div class="card" onclick="setModel('zen')" style="margin-bottom:10px; background:#84fab0; color:white;"><i class="fas fa-spa" style="color:white;"></i><span id="m-zen">Zen (Calm)</span></div>
+    <div class="modal fade" id="todoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="h_todo">Tasks</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="t-in" placeholder="New Task...">
+                        <button class="btn btn-primary" onclick="addTodo()">+</button>
+                    </div>
+                    <div id="t-list" class="list-group"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="game" class="modal">
-        <div class="modal-head"><span id="h_game">Tic Tac Toe</span> <i class="fas fa-times" onclick="closeModal('game')"></i></div>
-        <div class="modal-body" style="text-align:center;">
-            <h2 id="ttt-msg">Your Turn (X)</h2>
-            <div class="ttt-board" id="ttt-board"></div>
-            <button class="btn-main" onclick="initTTT()" id="btn-restart">Restart</button>
+    <div class="modal fade" id="timerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header"><h5 class="modal-title" id="h_timer">Pomodoro</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <h1 class="display-1 fw-bold my-4" id="time-disp">25:00</h1>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-success px-4" onclick="startTimer()">Start</button>
+                        <button class="btn btn-danger px-4" onclick="resetTimer()">Reset</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="todo" class="modal"><div class="modal-head"><span id="h_todo">Tasks</span> <i class="fas fa-times" onclick="closeModal('todo')"></i></div><div class="modal-body"><input id="t-in"><button class="btn-main" onclick="addTodo()">+</button><div id="t-list" style="margin-top:10px;"></div></div></div>
-    <div id="timer" class="modal"><div class="modal-head"><span id="h_timer">Timer</span> <i class="fas fa-times" onclick="closeModal('timer')"></i></div><div class="modal-body" style="text-align:center;"><h1 id="time-disp" style="font-size:4rem;margin:30px 0;">25:00</h1><button class="btn-main" onclick="startTimer()">Start</button><button class="btn-main" style="background:#f44336" onclick="resetTimer()">Reset</button></div></div>
-    <div id="sleep" class="modal"><div class="modal-head"><span id="h_sleep">Sleep</span> <i class="fas fa-times" onclick="closeModal('sleep')"></i></div><div class="modal-body"><input type="time" id="wake-time"><button class="btn-main" onclick="calcSleep()">Calc</button><h3 id="sleep-res" style="text-align:center;margin-top:20px;"></h3></div></div>
-    <div id="journal" class="modal"><div class="modal-head"><span id="h_journal">Journal</span> <i class="fas fa-times" onclick="closeModal('journal')"></i></div><div class="modal-body"><textarea id="j-txt" rows="10"></textarea><button class="btn-main" onclick="alert('Saved')">Save</button></div></div>
-    <div id="draw" class="modal"><div class="modal-head"><span id="h_draw">Draw</span> <i class="fas fa-times" onclick="closeModal('draw')"></i></div><div class="modal-body"><canvas id="canvas" width="300" height="400" style="border:1px solid #ccc;"></canvas><button class="btn-main" onclick="ctx.clearRect(0,0,300,400)" style="background:#f44336">Clear</button></div></div>
-    <div id="breath" class="modal"><div class="modal-head"><span id="h_breath">Breathe</span> <i class="fas fa-times" onclick="closeModal('breath')"></i></div><div class="modal-body"><div style="width:150px;height:150px;background:#4A90E2;border-radius:50%;margin:50px auto;animation:breathe 4s infinite;"></div></div></div>
-    <div id="bmi" class="modal"><div class="modal-head">BMI <i class="fas fa-times" onclick="closeModal('bmi')"></i></div><div class="modal-body"><input id="w" placeholder="Kg"><input id="h" placeholder="Cm"><button class="btn-main" onclick="calcBMI()">Check</button><h2 id="bmi-res" style="text-align:center;"></h2></div></div>
-    <div id="exam" class="modal"><div class="modal-head"><span id="h_exam">Exam</span> <i class="fas fa-times" onclick="closeModal('exam')"></i></div><div class="modal-body"><input type="date" id="e-date"><button class="btn-main" onclick="calcExam()">Calc</button><h2 id="e-res" style="text-align:center;"></h2></div></div>
+    <div class="modal fade" id="sleepModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="h_sleep">Sleep Calc</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body text-center">
+                    <p>I need to wake up at:</p>
+                    <input type="time" class="form-control form-control-lg mb-3" id="wake-time">
+                    <button class="btn btn-primary w-100" onclick="calcSleep()">Calculate Bedtime</button>
+                    <h3 class="mt-3 text-primary" id="sleep-res"></h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-</div>
+    <div class="modal fade" id="journalModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="h_journal">Journal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <textarea class="form-control mb-3" id="j-txt" rows="10" placeholder="Dear Diary..."></textarea>
+                    <button class="btn btn-primary w-100" onclick="alert('Saved!')">Save Entry</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script>
-    // --- TRANSLATIONS ---
-    const dict = {
-        en: {
-            greet:"Hi Student! 👋", btn_start:"Start Analysis", btn_home:"Home",
-            l_game:"Tic Tac AI", l_todo:"Tasks", l_timer:"Pomodoro", l_sleep:"Sleep", l_journal:"Journal", l_draw:"Draw", l_breath:"Breathe", l_bmi:"BMI", l_exam:"Exam", l_lang:"Language",
-            h_models:"Select Model", txt_model_inst:"Choose advisor:", m_friend:"Friend (Kind)", m_teacher:"Teacher (Strict)", m_zen:"Zen (Calm)",
-            h_game:"Tic Tac Toe", h_todo:"Tasks", h_timer:"Timer", h_sleep:"Sleep", h_journal:"Journal", h_draw:"Draw", h_breath:"Breathe", h_exam:"Exam", h_lang:"Language",
-            q_arr: ["Kindly rate your Sleep Quality? 😴", "How often do you get headaches? 🤕", "Rate your Academic Performance? 📊", "How heavy is your Study Load? 📚", "Do you do Extracurricular Activities? ⚽"],
-            res_norm:"Normal", res_stress:"High Stress",
-            adv_f_good:"Awesome! Life is good! 🎉", adv_f_bad:"Oh no! Need a break? 🤗",
-            adv_t_good:"Good. Keep studying. 📚", adv_t_bad:"Focus! Re-plan your day. 📏",
-            adv_z_good:"Peaceful mind. 🌸", adv_z_bad:"Breathe deeply. 🧘",
-            ttt_turn:"Your Turn (X)", ttt_win:"You Win!", ttt_lose:"AI Wins!", ttt_draw:"Draw!", btn_restart:"Restart"
-        },
-        si: {
-            greet:"ආයුබෝවන්! 👋", btn_start:"විශ්ලේෂණය", btn_home:"මුල් පිටුව",
-            l_game:"ටික් ටැක්", l_todo:"වැඩ", l_timer:"ටයිමර්", l_sleep:"නින්ද", l_journal:"දිනපොත", l_draw:"චිත්‍ර", l_breath:"හුස්ම", l_bmi:"BMI", l_exam:"විභාග", l_lang:"භාෂාව",
-            h_models:"AI තෝරන්න", txt_model_inst:"උපදෙස් දෙන්නේ:", m_friend:"යාලුවා", m_teacher:"ගුරුවරයා", m_zen:"Zen ගුරු",
-            h_game:"ටික් ටැක් ටෝ", h_todo:"වැඩ ලැයිස්තුව", h_timer:"ටයිමර්", h_sleep:"නින්ද", h_journal:"දිනපොත", h_draw:"චිත්‍ර", h_breath:"හුස්ම", h_exam:"විභාග", h_lang:"භාෂාව",
-            q_arr: ["නින්දේ තත්ත්වය කොහොමද? 😴", "හිසරදය හැදෙනවාද? 🤕", "අධ්‍යාපන මට්ටම හොඳද? 📊", "පාඩම් බර වැඩිද? 📚", "විනෝදාංශ කරනවාද? ⚽"],
-            res_norm:"සාමාන්‍යයි", res_stress:"ආතතිය",
-            adv_f_good:"නියමයි! සතුටින් ඉන්න! 🎉", adv_f_bad:"අයියෝ! විවේකයක් ගමු. 🤗",
-            adv_t_good:"හොඳයි. දිගටම කරන්න. 📚", adv_t_bad:"කාලසටහන වෙනස් කරන්න. 📏",
-            adv_z_good:"මනස සැහැල්ලුයි. 🌸", adv_z_bad:"ගැඹුරින් හුස්ම ගන්න. 🧘",
-            ttt_turn:"ඔබේ වාරය", ttt_win:"ඔබ දිනුවා!", ttt_lose:"AI දිනුවා!", ttt_draw:"සමයි!", btn_restart:"නැවත"
-        },
-        ta: {
-            greet:"வணக்கம்! 👋", btn_start:"தொடங்கவும்", btn_home:"முகப்பு",
-            l_game:"விளையாட்டு", l_todo:"வேலை", l_timer:"நேரம்", l_sleep:"தூக்கம்", l_journal:"குறிப்பு", l_draw:"ஓவியம்", l_breath:"மூச்சு", l_bmi:"BMI", l_exam:"தேர்வு", l_lang:"மொழி",
-            h_models:"AI தேர்வு", txt_model_inst:"ஆலோசகர்:", m_friend:"நண்பர்", m_teacher:"ஆசிரியர்", m_zen:"ஜென்",
-            h_game:"டிக் டாக் டோ", h_todo:"வேலைகள்", h_timer:"நேரம்", h_sleep:"தூக்கம்", h_journal:"குறிப்பு", h_draw:"ஓவியம்", h_breath:"மூச்சு", h_exam:"தேர்வு", h_lang:"மொழி",
-            q_arr: ["தூக்கம் எப்படி? 😴", "தலைவலி உள்ளதா? 🤕", "கல்வி நிலை? 📊", "படிப்பு சுமை? 📚", "விளையாட்டு? ⚽"],
-            res_norm:"சாதாரணம்", res_stress:"அழுத்தம்",
-            adv_f_good:"நன்று! மகிழுங்கள்! 🎉", adv_f_bad:"ஓய்வு எடுங்கள். 🤗",
-            adv_t_good:"நல்லது. படியுங்கள். 📚", adv_t_bad:"கவனம் தேவை. 📏",
-            adv_z_good:"அமைதி. 🌸", adv_z_bad:"மூச்சு விடுங்கள். 🧘",
-            ttt_turn:"உங்கள் முறை", ttt_win:"வெற்றி!", ttt_lose:"AI வெற்றி!", ttt_draw:"சமம்!", btn_restart:"மீண்டும்"
+    <div class="modal fade" id="drawModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="h_draw">Canvas</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-0 position-relative">
+                    <canvas id="canvas" class="w-100 h-100 bg-white"></canvas>
+                    <button class="btn btn-danger position-absolute bottom-0 start-50 translate-middle-x mb-4" onclick="clearCanvas()">Clear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="breathModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header"><h5 class="modal-title" id="h_breath">Breathe</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div style="width:150px;height:150px;background:var(--primary-color);border-radius:50%;margin:50px auto;animation:breathe 4s infinite;"></div>
+                    <p class="text-muted">Inhale... Exhale...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="bmiModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">BMI</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="number" class="form-control mb-2" id="w" placeholder="Weight (kg)">
+                    <input type="number" class="form-control mb-3" id="h" placeholder="Height (cm)">
+                    <button class="btn btn-primary w-100" onclick="calcBMI()">Check</button>
+                    <h3 class="text-center mt-3" id="bmi-res"></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="examModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="h_exam">Exam Day</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="date" class="form-control mb-3" id="e-date">
+                    <button class="btn btn-primary w-100" onclick="calcExam()">Calculate Days</button>
+                    <h2 class="text-center mt-3" id="e-res"></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // --- DATA & TRANSLATIONS ---
+        const dict = {
+            en: {
+                greet:"Hi Student! 👋", btn_start:"Start Analysis", btn_home:"Home",
+                l_game:"Tic Tac AI", l_todo:"Tasks", l_timer:"Pomodoro", l_sleep:"Sleep", l_journal:"Journal", l_draw:"Draw", l_breath:"Breathe", l_bmi:"BMI", l_exam:"Exam", l_lang:"Language",
+                h_models:"Select Model", txt_model_inst:"Choose advisor:", m_friend:"Friend (Kind)", m_teacher:"Teacher (Strict)", m_zen:"Zen (Calm)",
+                h_game:"Tic Tac Toe", h_todo:"Tasks", h_timer:"Timer", h_sleep:"Sleep", h_journal:"Journal", h_draw:"Draw", h_breath:"Breathe", h_exam:"Exam", h_lang:"Language",
+                q_arr: ["Kindly rate your Sleep Quality? 😴", "How many times a week do you suffer headaches? 🤕", "How would you rate your Academic Performance? 📊", "How would you rate your Study Load? 📚", "How often do you practice Extracurricular Activities? ⚽"],
+                res_norm:"Normal", res_stress:"High Stress",
+                adv_f_good:"Awesome! You're balancing life well! 🎉", adv_f_bad:"Oh no! Looks like you need a break. Call me? 🤗",
+                adv_t_good:"Satisfactory performance. Maintain this. 📚", adv_t_bad:"Critical stress levels detected. Re-structure your plan. 📏",
+                adv_z_good:"Your mind is clear. Like a calm lake. 🌸", adv_z_bad:"Turbulence detected. Breathe deeply. 🧘",
+                ttt_turn:"Your Turn (X)", ttt_win:"You Win!", ttt_lose:"AI Wins!", ttt_draw:"Draw!", btn_restart:"Restart"
+            },
+            si: {
+                greet:"ආයුබෝවන්! 👋", btn_start:"ආරම්භ කරන්න", btn_home:"මුල් පිටුව",
+                l_game:"ටික් ටැක්", l_todo:"වැඩ", l_timer:"ටයිමර්", l_sleep:"නින්ද", l_journal:"දිනපොත", l_draw:"චිත්‍ර", l_breath:"හුස්ම", l_bmi:"BMI", l_exam:"විභාග", l_lang:"භාෂාව",
+                h_models:"AI තෝරන්න", txt_model_inst:"උපදෙස් දෙන්නේ:", m_friend:"යාලුවා", m_teacher:"ගුරුවරයා", m_zen:"Zen ගුරු",
+                h_game:"ටික් ටැක් ටෝ", h_todo:"වැඩ ලැයිස්තුව", h_timer:"ටයිමර්", h_sleep:"නින්ද", h_journal:"දිනපොත", h_draw:"චිත්‍ර", h_breath:"හුස්ම", h_exam:"විභාග", h_lang:"භාෂාව",
+                q_arr: ["කරුණාකර ඔබේ නින්දේ තත්ත්වය අගයන්න? 😴", "සතියකට කී වතාවක් හිසරදය ඇති වේද? 🤕", "ඔබේ අධ්‍යාපන කාර්ය සාධනය කෙසේද? 📊", "ඔබේ පාඩම් බර ප්‍රමාණය කොහොමද? 📚", "බාහිර ක්‍රියාකාරකම්වල කොපමණ යෙදෙනවාද? ⚽"],
+                res_norm:"සාමාන්‍යයි", res_stress:"ආතතිය",
+                adv_f_good:"නියමයි! ඔයා හොඳින් පාලනය කරගෙන යනවා! 🎉", adv_f_bad:"අයියෝ! ඔයාට විවේකයක් ඕනේ වගේ. අපි කතා කරමු. 🤗",
+                adv_t_good:"හොඳයි. දිගටම මේ විදිහට වැඩ කරන්න. 📚", adv_t_bad:"තත්ත්වය බරපතලයි. කාලසටහන වෙනස් කරන්න. 📏",
+                adv_z_good:"මනස ඉතා සැහැල්ලුයි. 🌸", adv_z_bad:"කලබල වෙන්න එපා. ගැඹුරින් හුස්ම ගන්න. 🧘",
+                ttt_turn:"ඔබේ වාරය", ttt_win:"ඔබ දිනුවා!", ttt_lose:"AI දිනුවා!", ttt_draw:"සමයි!", btn_restart:"නැවත"
+            },
+            ta: {
+                greet:"வணக்கம்! 👋", btn_start:"தொடங்கவும்", btn_home:"முகப்பு",
+                l_game:"விளையாட்டு", l_todo:"வேலை", l_timer:"நேரம்", l_sleep:"தூக்கம்", l_journal:"குறிப்பு", l_draw:"ஓவியம்", l_breath:"மூச்சு", l_bmi:"BMI", l_exam:"தேர்வு", l_lang:"மொழி",
+                h_models:"AI தேர்வு", txt_model_inst:"ஆலோசகர்:", m_friend:"நண்பர்", m_teacher:"ஆசிரியர்", m_zen:"ஜென்",
+                h_game:"டிக் டாக் டோ", h_todo:"வேலைகள்", h_timer:"நேரம்", h_sleep:"தூக்கம்", h_journal:"குறிப்பு", h_draw:"ஓவியம்", h_breath:"மூச்சு", h_exam:"தேர்வு", h_lang:"மொழி",
+                q_arr: ["தூக்கம் எப்படி? 😴", "தலைவலி உள்ளதா? 🤕", "கல்வி நிலை? 📊", "படிப்பு சுமை? 📚", "விளையாட்டு? ⚽"],
+                res_norm:"சாதாரணம்", res_stress:"அழுத்தம்",
+                adv_f_good:"நன்று! நீங்கள் சிறப்பாகச் செய்கிறீர்கள்! 🎉", adv_f_bad:"கவலை வேண்டாம். ஓய்வு எடுங்கள். 🤗",
+                adv_t_good:"நல்லது. தொடர்ந்து படியுங்கள். 📚", adv_t_bad:"கவனம் தேவை. அட்டவணையை மாற்றவும். 📏",
+                adv_z_good:"மனம் அமைதியாக உள்ளது. 🌸", adv_z_bad:"மூச்சுப் பயிற்சி செய்யுங்கள். 🧘",
+                ttt_turn:"உங்கள் முறை", ttt_win:"வெற்றி!", ttt_lose:"AI வெற்றி!", ttt_draw:"சமம்!", btn_restart:"மீண்டும்"
+            }
+        };
+
+        let lang = 'en';
+        let currentModel = 'friend';
+        let qAnswers = [];
+        let tttBoard = Array(9).fill(null);
+        let tttActive = true;
+
+        // --- HELPER FUNCTIONS ---
+        function showModal(id) { new bootstrap.Modal(document.getElementById(id)).show(); if(id=='gameModal') initTTT(); }
+        function goHome() { 
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-home').classList.add('active');
         }
-    };
+        function changeView(id) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
 
-    let lang = 'en', currentModel = 'friend';
-    let qAnswers = [];
+        // --- LANGUAGE & MODELS ---
+        function setLang(l) {
+            lang = l;
+            let d = dict[l];
+            document.getElementById('greet').innerText = d.greet;
+            document.getElementById('btn-start').innerText = d.btn_start;
+            document.getElementById('btn-home').innerText = d.btn_home;
+            
+            // Loop IDS
+            ['game','todo','timer','sleep','journal','draw','breath','bmi','exam','lang'].forEach(k => { if(document.getElementById('l_'+k)) document.getElementById('l_'+k).innerText = d['l_'+k]; });
+            ['game','todo','timer','sleep','journal','draw','breath','exam','lang','models'].forEach(k => { if(document.getElementById('h_'+k)) document.getElementById('h_'+k).innerText = d['h_'+k]; });
+            
+            document.getElementById('txt-model-inst').innerText = d.txt_model_inst;
+            document.getElementById('m-friend').innerText = d.m_friend;
+            document.getElementById('m-teacher').innerText = d.m_teacher;
+            document.getElementById('m-zen').innerText = d.m_zen;
+            document.getElementById('ttt-msg').innerText = d.ttt_turn;
+            document.getElementById('btn-restart').innerText = d.btn_restart;
+            
+            // Close modal using bootstrap API
+            bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+        }
 
-    function goHome() { document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id=='game') initTTT(); }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function showView(id) { document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        function setModel(m) {
+            currentModel = m;
+            document.body.className = 'model-' + m;
+            let d = dict[lang];
+            let name = m==='friend'?d.m_friend : m==='teacher'?d.m_teacher : d.m_zen;
+            document.getElementById('model-disp').innerText = "Current: " + name;
+            bootstrap.Modal.getInstance(document.getElementById('modelsModal')).hide();
+        }
 
-    function setLang(l) {
-        lang = l;
-        let d = dict[l];
-        document.getElementById('greet').innerText = d.greet;
-        document.getElementById('btn-start').innerText = d.btn_start;
-        document.getElementById('btn-home').innerText = d.btn_home;
-        ['game','todo','timer','sleep','journal','draw','breath','bmi','exam','lang'].forEach(k => document.getElementById('l_'+k).innerText = d['l_'+k]);
-        ['models','game','todo','timer','sleep','journal','draw','breath','exam','lang'].forEach(k => { if(document.getElementById('h_'+k)) document.getElementById('h_'+k).innerText = d['h_'+k]; });
-        document.getElementById('txt-model-inst').innerText = d.txt_model_inst;
-        document.getElementById('m-friend').innerText = d.m_friend;
-        document.getElementById('m-teacher').innerText = d.m_teacher;
-        document.getElementById('m-zen').innerText = d.m_zen;
-        document.getElementById('ttt-msg').innerText = d.ttt_turn;
-        document.getElementById('btn-restart').innerText = d.btn_restart;
-        closeModal('settings');
-    }
+        // --- QUIZ & LOGIC ---
+        let qStep = 0;
+        function startCheckup() { qStep=0; qAnswers=[]; changeView('view-quiz'); loadQ(); }
+        function loadQ() { document.getElementById('q-text').innerText = dict[lang].q_arr[qStep]; }
+        function speakQ() { 
+            let u = new SpeechSynthesisUtterance(document.getElementById('q-text').innerText);
+            window.speechSynthesis.speak(u);
+        }
+        function answer(v) {
+            qAnswers.push(v); qStep++;
+            if(qStep<5) loadQ(); else finishQuiz();
+        }
+        function finishQuiz() {
+            changeView('view-result');
+            // Logic: Sleep/Extra(good=high) -> reverse. Headache/Load(bad=high) -> keep. Academic(good=high) -> reverse.
+            // Simplified logic as per user request history: Sleep(0=bad), Headache(5=bad)
+            // Let's assume standard stress scale: High input = High intensity.
+            // Sleep(High=Good), so input 5 reduces stress.
+            // Headache(High=Bad), input 5 increases stress.
+            // Let's stick to dataset logic:
+            let s = (5-qAnswers[0]) + qAnswers[1] + (5-qAnswers[2]) + qAnswers[3] + (5-qAnswers[4]);
+            let pct = Math.round((s/25)*100);
+            
+            document.getElementById('res-score').innerText = pct + "%";
+            let d = dict[lang];
+            let good = pct < 50;
+            
+            let advice = "";
+            if(currentModel==='friend') advice = good ? d.adv_f_good : d.adv_f_bad;
+            else if(currentModel==='teacher') advice = good ? d.adv_t_good : d.adv_t_bad;
+            else advice = good ? d.adv_z_good : d.adv_z_bad;
+            
+            document.getElementById('res-status').innerText = good ? d.res_norm : d.res_stress;
+            document.getElementById('res-advice').innerText = advice;
+        }
 
-    function setModel(m) {
-        currentModel = m;
-        document.body.className = 'model-' + m;
-        let d = dict[lang];
-        let name = m==='friend'?d.m_friend : m==='teacher'?d.m_teacher : d.m_zen;
-        document.getElementById('model-disp').innerText = name;
-        closeModal('models');
-    }
+        // --- TIC TAC TOE AI ---
+        function initTTT() { tttBoard.fill(null); tttActive=true; renderTTT(); document.getElementById('ttt-msg').innerText = dict[lang].ttt_turn; }
+        function renderTTT() {
+            let b = document.getElementById('ttt-board'); b.innerHTML = '';
+            tttBoard.forEach((c, i) => {
+                let col = document.createElement('div'); col.className='col-4';
+                col.innerHTML = `<div class="ttt-cell shadow-sm ${c?'taken':''}" onclick="playTTT(${i})">${c || ''}</div>`;
+                b.appendChild(col);
+            });
+        }
+        function playTTT(i) {
+            if(!tttActive || tttBoard[i]) return;
+            tttBoard[i] = 'X'; renderTTT();
+            if(checkWin('X')) { endGame(dict[lang].ttt_win); return; }
+            if(!tttBoard.includes(null)) { endGame("Draw!"); return; }
+            setTimeout(aiMove, 500);
+        }
+        function aiMove() {
+            if(!tttActive) return;
+            let empty = tttBoard.map((v, i) => v===null ? i : null).filter(v => v!==null);
+            if(empty.length>0) {
+                tttBoard[empty[Math.floor(Math.random()*empty.length)]] = 'O';
+                renderTTT();
+                if(checkWin('O')) endGame(dict[lang].ttt_lose);
+            }
+        }
+        function checkWin(p) { return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(c => tttBoard[c[0]]==p && tttBoard[c[1]]==p && tttBoard[c[2]]==p); }
+        function endGame(msg) { tttActive=false; document.getElementById('ttt-msg').innerText = msg; }
 
-    // --- TIC TAC TOE AI ---
-    let board = Array(9).fill(null), gameActive = true;
-    function initTTT() { board.fill(null); gameActive = true; renderTTT(); document.getElementById('ttt-msg').innerText = dict[lang].ttt_turn; }
-    function renderTTT() {
-        let b = document.getElementById('ttt-board'); b.innerHTML='';
-        board.forEach((c, i) => {
-            let d = document.createElement('div'); d.className = 'ttt-cell ' + (c ? 'taken' : '');
-            d.innerText = c || ''; d.onclick = () => playerMove(i);
-            b.appendChild(d);
-        });
-    }
-    function playerMove(i) {
-        if(!gameActive || board[i]) return;
-        board[i] = 'X'; renderTTT();
-        if(checkWin('X')) { endGame(dict[lang].ttt_win); return; }
-        if(!board.includes(null)) { endGame(dict[lang].ttt_draw); return; }
-        setTimeout(aiMove, 500);
-    }
-    function aiMove() {
-        if(!gameActive) return;
-        let empty = board.map((v, i) => v === null ? i : null).filter(v => v !== null);
-        board[empty[Math.floor(Math.random() * empty.length)]] = 'O'; renderTTT();
-        if(checkWin('O')) { endGame(dict[lang].ttt_lose); return; }
-        if(!board.includes(null)) { endGame(dict[lang].ttt_draw); return; }
-    }
-    function checkWin(p) { return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(c => board[c[0]]==p && board[c[1]]==p && board[c[2]]==p); }
-    function endGame(msg) { gameActive = false; document.getElementById('ttt-msg').innerText = msg; }
-
-    // --- SMART STRESS LOGIC ---
-    let qStep=0;
-    function startCheckup() { qStep=0; qAnswers=[]; showView('view-quiz'); loadQ(); }
-    function loadQ() { document.getElementById('q-text').innerText = dict[lang].q_arr[qStep]; }
-    function speakQ() { 
-        let txt = document.getElementById('q-text').innerText;
-        let u = new SpeechSynthesisUtterance(txt);
-        // Sinhala/Tamil TTS might not work in all browsers, defaults to English voice reading the text
-        window.speechSynthesis.speak(u);
-    }
-    function answer(v) {
-        qAnswers.push(v); qStep++;
-        if(qStep < 5) loadQ();
-        else finishQuiz();
-    }
-    function finishQuiz() {
-        showView('view-result');
-        // Logic: 
-        // 1. Sleep (High=Good) -> Reverse (5-v)
-        // 2. Headache (High=Bad) -> Direct (v)
-        // 3. Academic (High=Good) -> Reverse (5-v)
-        // 4. Load (High=Bad) -> Direct (v)
-        // 5. Extra (High=Good) -> Reverse (5-v)
-        let s = (5-qAnswers[0]) + qAnswers[1] + (5-qAnswers[2]) + qAnswers[3] + (5-qAnswers[4]);
-        let pct = Math.round((s/25)*100);
+        // --- FEATURES ---
+        function addTodo() { 
+            let v=document.getElementById('t-in').value; 
+            if(v) {
+                document.getElementById('t-list').innerHTML += `<div class="list-group-item d-flex justify-content-between align-items-center">${v} <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">&times;</button></div>`;
+                document.getElementById('t-in').value='';
+            }
+        }
         
-        document.getElementById('res-score').innerText = pct + "%";
+        let tInt, tTime=1500;
+        function startTimer() { if(!tInt) tInt=setInterval(()=>{ tTime--; let m=Math.floor(tTime/60),s=tTime%60; document.getElementById('time-disp').innerText=`${m}:${s<10?'0'+s:s}`; if(tTime<=0)resetTimer(); },1000); }
+        function resetTimer() { clearInterval(tInt); tInt=null; tTime=1500; document.getElementById('time-disp').innerText="25:00"; }
         
-        let d = dict[lang];
-        let good = pct < 50;
-        let advice = "";
+        function calcSleep() { 
+            let t=document.getElementById('wake-time').value; 
+            if(t) { 
+                let d=new Date("2000-01-01 "+t); d.setMinutes(d.getMinutes()-450); 
+                document.getElementById('sleep-res').innerText = "Bedtime: " + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); 
+            } 
+        }
         
-        if(currentModel === 'friend') advice = good ? d.adv_f_good : d.adv_f_bad;
-        else if(currentModel === 'teacher') advice = good ? d.adv_t_good : d.adv_t_bad;
-        else advice = good ? d.adv_z_good : d.adv_z_bad;
+        function calcBMI() { 
+            let w=document.getElementById('w').value, h=document.getElementById('h').value; 
+            if(w&&h) document.getElementById('bmi-res').innerText = "BMI: " + (w/((h/100)**2)).toFixed(1); 
+        }
         
-        document.getElementById('res-advice').innerText = advice;
-        document.getElementById('res-status').innerText = good ? d.res_norm : d.res_stress;
-    }
+        function calcExam() { 
+            let d=new Date(document.getElementById('e-date').value); 
+            let diff=Math.ceil((d-new Date())/(1000*60*60*24)); 
+            document.getElementById('e-res').innerText = diff + " Days Left!"; 
+        }
 
-    // --- FEATURES ---
-    function addTodo() { let v=document.getElementById('t-in').value; if(v){document.getElementById('t-list').innerHTML+=`<div class='todo-item'>${v} <i class='fas fa-trash' onclick='this.parentElement.remove()'></i></div>`; document.getElementById('t-in').value='';} }
-    let tInt, tTime=1500;
-    function startTimer(){ if(!tInt) tInt=setInterval(()=>{ tTime--; let m=Math.floor(tTime/60),s=tTime%60; document.getElementById('time-disp').innerText=`${m}:${s<10?'0'+s:s}`; if(tTime<=0)resetTimer(); },1000); }
-    function resetTimer(){ clearInterval(tInt); tInt=null; tTime=1500; document.getElementById('time-disp').innerText="25:00"; }
-    function calcSleep(){ let t=document.getElementById('wake-time').value; if(t){ let d=new Date("2000-01-01 "+t); d.setMinutes(d.getMinutes()-450); document.getElementById('sleep-res').innerText=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); } }
-    function calcBMI(){ let w=document.getElementById('w').value, h=document.getElementById('h').value; if(w&&h) document.getElementById('bmi-res').innerText="BMI: "+(w/((h/100)**2)).toFixed(1); }
-    function calcExam(){ let d=new Date(document.getElementById('e-date').value); let diff=Math.ceil((d-new Date())/(1000*60*60*24)); document.getElementById('e-res').innerText=diff+" Days"; }
-    
-    const ctx = document.getElementById('canvas').getContext('2d');
-    let paint=false;
-    function draw(e){ if(!paint)return; e.preventDefault(); let r=e.target.getBoundingClientRect(); let x=(e.clientX||e.touches[0].clientX)-r.left, y=(e.clientY||e.touches[0].clientY)-r.top; ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y); }
-    const cvs = document.getElementById('canvas');
-    cvs.addEventListener('mousedown',()=>{paint=true}); cvs.addEventListener('mouseup',()=>{paint=false;ctx.beginPath()}); cvs.addEventListener('mousemove',draw);
-    cvs.addEventListener('touchstart',(e)=>{paint=true;draw(e)}); cvs.addEventListener('touchend',()=>{paint=false;ctx.beginPath()}); cvs.addEventListener('touchmove',draw);
+        // --- CANVAS ---
+        const cvs = document.getElementById('canvas');
+        const ctx = cvs.getContext('2d');
+        let painting = false;
+        
+        function resizeCanvas() { cvs.width = cvs.offsetWidth; cvs.height = cvs.offsetHeight; }
+        // Resize on modal show
+        document.getElementById('drawModal').addEventListener('shown.bs.modal', resizeCanvas);
 
-    document.styleSheets[0].insertRule(`@keyframes breathe { 0%,100% {transform:scale(1)} 50% {transform:scale(1.5)} }`,0);
-</script>
+        function getPos(e) {
+            let r = cvs.getBoundingClientRect();
+            return { x: (e.clientX||e.touches[0].clientX)-r.left, y: (e.clientY||e.touches[0].clientY)-r.top };
+        }
+        function startDraw(e) { e.preventDefault(); painting=true; draw(e); }
+        function endDraw() { painting=false; ctx.beginPath(); }
+        function draw(e) {
+            if(!painting) return;
+            e.preventDefault();
+            let p = getPos(e);
+            ctx.lineWidth=3; ctx.lineCap='round'; 
+            ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        }
+        
+        cvs.addEventListener('mousedown', startDraw); cvs.addEventListener('touchstart', startDraw);
+        cvs.addEventListener('mouseup', endDraw); cvs.addEventListener('touchend', endDraw);
+        cvs.addEventListener('mousemove', draw); cvs.addEventListener('touchmove', draw);
+        
+        function clearCanvas() { ctx.clearRect(0,0,cvs.width,cvs.height); }
+
+    </script>
 </body>
 </html>
