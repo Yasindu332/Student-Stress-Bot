@@ -1,297 +1,356 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 Student Stress Bot 🧠</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MindMate AI Final</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Noto+Sans+Sinhala:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .chat-container { width: 100%; max-width: 400px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); overflow: hidden; display: flex; flex-direction: column; height: 80vh; position: relative; }
-        .chat-header { background: #0078ff; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; position: relative; }
-        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .message { padding: 10px 15px; border-radius: 20px; max-width: 80%; font-size: 0.95em; line-height: 1.4; }
-        .bot-message { background: #e9e9eb; color: black; align-self: flex-start; border-bottom-left-radius: 5px; }
-        .user-message { background: #0078ff; color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
-        .input-area { padding: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; background: #f9f9f9; flex-wrap: wrap; }
-        .btn { padding: 10px 20px; background: #0078ff; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s; margin: 5px; }
-        .btn:hover { background: #005ecb; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .options { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-        .option-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #0078ff; background: white; color: #0078ff; cursor: pointer; font-weight: bold; }
-        .option-btn:hover { background: #0078ff; color: white; }
-        .clear-btn { background: #ff4444; font-size: 0.8em; padding: 5px 10px; position: absolute; right: 10px; top: 15px; border-radius: 5px; color: white; border: none; cursor: pointer; }
-        
-        /* Modal Styles */
-        .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; width: 80%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeIn 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
-        .modal-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-yes { background: #ff4444; color: white; }
-        .btn-no { background: #ddd; color: black; }
-        .modal-img { width: 80px; height: auto; margin-bottom: 15px; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        :root {
+            --primary: #4A90E2;
+            --bg-grad: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text: #333;
+        }
+
+        body.model-friend { --primary: #FF6B6B; --bg-grad: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
+        body.model-teacher { --primary: #4A90E2; --bg-grad: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        body.model-zen { --primary: #66BB6A; --bg-grad: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+
+        body {
+            font-family: 'Poppins', 'Noto Sans Sinhala', sans-serif;
+            margin: 0; background: var(--bg-grad); color: var(--text);
+            height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center;
+            transition: background 0.5s;
+        }
+
+        .app {
+            width: 100%; height: 100%; background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        @media (min-width: 600px) { .app { width: 400px; height: 90vh; border-radius: 30px; border: 1px solid rgba(255,255,255,0.4); } }
+
+        .header {
+            padding: 20px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.6); border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--primary); letter-spacing: 1px; }
+        .icon-btn { background: white; border: none; padding: 10px; border-radius: 50%; cursor: pointer; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+        .icon-btn:hover { transform: scale(1.1); }
+
+        .content { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none; }
+        .content::-webkit-scrollbar { display: none; }
+
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-bottom: 50px; }
+        .card {
+            background: var(--card-bg); border-radius: 15px; padding: 20px; text-align: center;
+            cursor: pointer; transition: 0.2s; border: 1px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .card i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
+        .card span { font-weight: 600; font-size: 0.9rem; }
+
+        .btn-main {
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            background: var(--primary); color: white; font-weight: bold; font-size: 1rem;
+            cursor: pointer; margin-top: 10px; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn-main:active { transform: scale(0.98); }
+
+        .modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f4f7f6; z-index: 100; display: none; flex-direction: column;
+        }
+        .modal-head {
+            padding: 20px; background: white; font-weight: bold; font-size: 1.1rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
+
+        input, textarea {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px;
+            margin-bottom: 10px; font-family: inherit; font-size: 1rem; box-sizing: border-box;
+        }
+
+        .view { display: none; animation: fadeIn 0.4s; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .ttt-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 250px; margin: 20px auto; }
+        .ttt-cell {
+            aspect-ratio: 1; background: white; border-radius: 10px;
+            font-size: 2.5rem; font-weight: bold; color: var(--primary);
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+        .todo-item { background: white; padding: 10px; border-radius: 8px; margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center; }
     </style>
 </head>
-<body>
+<body class="model-friend">
 
-<div class="chat-container">
-    <div class="chat-header">
-        🤖 Stress Bot
-        <button class="clear-btn" onclick="showResetModal()" title="Clear History">🗑️ Reset</button>
+<div class="app">
+    <div class="header">
+        <button class="icon-btn" onclick="goHome()"><i class="fas fa-home"></i></button>
+        <div class="logo">MindMate</div>
+        <button class="icon-btn" onclick="openModal('models')"><i class="fas fa-robot"></i></button>
     </div>
-    <div class="chat-box" id="chat-box">
-        </div>
-    <div class="input-area" id="input-area">
+
+    <div class="content">
+        <div id="view-home" class="view active">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 id="greet">Hi Student! 👋</h2>
+                <p id="model-disp" style="font-size: 0.8rem; background: rgba(255,255,255,0.5); padding: 5px 10px; border-radius: 20px; display: inline-block;">Current: Friend</p>
+                <button class="btn-main" onclick="startCheckup()" id="btn-start">Start Analysis</button>
+            </div>
+
+            <div class="grid">
+                <div class="card" onclick="openModal('game')"><i class="fas fa-gamepad"></i><span id="l_game">Tic Tac AI</span></div>
+                <div class="card" onclick="openModal('todo')"><i class="fas fa-check-square"></i><span id="l_todo">Tasks</span></div>
+                <div class="card" onclick="openModal('timer')"><i class="fas fa-clock"></i><span id="l_timer">Pomodoro</span></div>
+                <div class="card" onclick="openModal('sleep')"><i class="fas fa-moon"></i><span id="l_sleep">Sleep Calc</span></div>
+                <div class="card" onclick="openModal('journal')"><i class="fas fa-book"></i><span id="l_journal">Journal</span></div>
+                <div class="card" onclick="openModal('draw')"><i class="fas fa-paint-brush"></i><span id="l_draw">Draw</span></div>
+                <div class="card" onclick="openModal('breath')"><i class="fas fa-wind"></i><span id="l_breath">Breathe</span></div>
+                <div class="card" onclick="openModal('bmi')"><i class="fas fa-weight"></i><span id="l_bmi">BMI</span></div>
+                <div class="card" onclick="openModal('exam')"><i class="fas fa-calendar-day"></i><span id="l_exam">Exam</span></div>
+                <div class="card" onclick="openModal('settings')"><i class="fas fa-language"></i><span id="l_lang">Language</span></div>
+            </div>
         </div>
 
-    <div id="resetModal" class="modal">
-        <div class="modal-content">
-            <img src="data:image/png;base64,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9OjR/3j06NH/ePTo0f949OjR/3j06NH/ePTo0f949OjR/3j06NH/ePTo0f947Nix/3Ds2LH/cOzYsf9w7Nix/3Ds2LH/cOzYsf9w/Pjx/3D8+PH/cPz48f9w/Pjx/3D8+PH/cPz48f9w/Pjx/3D8+PH/cPz48f9w/Pjx/3DixIn/cOLEif9w4sSJ/3DixIn/cOLEif9w4sSJ/3DixIn/cOLEif9w4sSJ/3DixIn/cOLEif9w6tSp/3Dq1Kn/cOrUqf9w6tSp/3Dq1Kn/cOrUqf9w6tSp/3Dq1Kn/cOrUqf9w6tSp/3Dq1Kn/cOrUqf9w+vTp/3D69On/cPr06f9w+vTp/3D69On/cPr06f9w+vTp/3D69On/cPr06f9w+vTp/3D69On/cObMmf+eM2fOvz1z5sy/PXPmzL89c+bMv82eOfNvz54582/Pnjnzb8+eOfNvz54582/Pnjnzb5988sm/ffLJJ//2ySef/Nsnn3zyb5988sm/ffLJJ//2ySef/Nsnn3zyb5988sm/ffLJJ//2ySef/Nsnn3zyb5988sm/ffrpp//26aef/tunn376b59++um/ffrpp//26aef/tunn376b59++um/ffrpp//26aef/tunn376b59++um/ffrpp//22Wef/dtzzz33t+ee+884d+7cfz/33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3Pc8899z/PPffc/zz33HP/89xzz/3P/wPYb+R8a7vXoQAAAABJRU5ErkJggg==" alt="Warning" class="modal-img">
-            <p id="modalText">⚠️ Are you sure you want to delete all history?</p>
-            <div class="modal-buttons">
-                <button class="modal-btn btn-yes" onclick="confirmReset()">✅ Yes</button>
-                <button class="modal-btn btn-no" onclick="closeResetModal()">❌ No</button>
+        <div id="view-quiz" class="view">
+            <div style="background: white; padding: 20px; border-radius: 15px; text-align: center;">
+                <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px;">
+                    <h2 id="q-text" style="font-size:1.1rem; margin:0;">Question</h2>
+                    <i class="fas fa-volume-up" style="color:var(--primary); cursor:pointer;" onclick="speakQ()"></i>
+                </div>
+                <div style="font-size: 3rem; margin-bottom: 20px;">🤔</div>
+                
+                <div style="display:grid; grid-template-columns: repeat(6,1fr); gap:5px;">
+                    <button class="btn-main" style="margin:0; padding:10px; background:#e0e0e0; color:#333;" onclick="answer(0)">0</button>
+                    <button class="btn-main" style="margin:0; padding:10px; background:#d0d0d0; color:#333;" onclick="answer(1)">1</button>
+                    <button class="btn-main" style="margin:0; padding:10px; background:#c0c0c0; color:#333;" onclick="answer(2)">2</button>
+                    <button class="btn-main" style="margin:0; padding:10px; background:#b0b0b0; color:#333;" onclick="answer(3)">3</button>
+                    <button class="btn-main" style="margin:0; padding:10px; background:#a0a0a0; color:white;" onclick="answer(4)">4</button>
+                    <button class="btn-main" style="margin:0; padding:10px; background:#909090; color:white;" onclick="answer(5)">5</button>
+                </div>
+                <p style="margin-top:10px; font-size:0.8rem; color:#666;">0 = No | 5 = Very Much</p>
+            </div>
+        </div>
+
+        <div id="view-result" class="view" style="text-align:center;">
+            <div style="background: white; padding: 30px; border-radius: 20px;">
+                <h1 id="res-score" style="color:var(--primary); font-size:3.5rem;">0%</h1>
+                <h3 id="res-status">Normal</h3>
+                <div id="res-advice" style="background:#f9f9f9; padding:15px; border-radius:10px; text-align:left; margin:15px 0; border-left:4px solid var(--primary);">Loading...</div>
+                <button class="btn-main" onclick="goHome()" id="btn-home">Home</button>
             </div>
         </div>
     </div>
+
+    <div id="settings" class="modal">
+        <div class="modal-head"><span id="h_lang">Language</span> <i class="fas fa-times" onclick="closeModal('settings')"></i></div>
+        <div class="modal-body">
+            <button class="btn-main" style="background:white; color:#333; border:1px solid #ddd;" onclick="setLang('en')">English</button>
+            <button class="btn-main" style="background:white; color:#333; border:1px solid #ddd;" onclick="setLang('si')">සිංහල</button>
+            <button class="btn-main" style="background:white; color:#333; border:1px solid #ddd;" onclick="setLang('ta')">தமிழ்</button>
+        </div>
+    </div>
+
+    <div id="models" class="modal">
+        <div class="modal-head"><span id="h_models">Model</span> <i class="fas fa-times" onclick="closeModal('models')"></i></div>
+        <div class="modal-body">
+            <p id="txt-model-inst">Choose advisor:</p>
+            <div class="card" onclick="setModel('friend')" style="margin-bottom:10px; background:#FF9A9E; color:white;"><i class="fas fa-user-friends" style="color:white;"></i><span id="m-friend">Friend (Kind)</span></div>
+            <div class="card" onclick="setModel('teacher')" style="margin-bottom:10px; background:#a1c4fd; color:white;"><i class="fas fa-chalkboard-teacher" style="color:white;"></i><span id="m-teacher">Teacher (Strict)</span></div>
+            <div class="card" onclick="setModel('zen')" style="margin-bottom:10px; background:#84fab0; color:white;"><i class="fas fa-spa" style="color:white;"></i><span id="m-zen">Zen (Calm)</span></div>
+        </div>
+    </div>
+
+    <div id="game" class="modal">
+        <div class="modal-head"><span id="h_game">Tic Tac Toe</span> <i class="fas fa-times" onclick="closeModal('game')"></i></div>
+        <div class="modal-body" style="text-align:center;">
+            <h2 id="ttt-msg">Your Turn (X)</h2>
+            <div class="ttt-board" id="ttt-board"></div>
+            <button class="btn-main" onclick="initTTT()" id="btn-restart">Restart</button>
+        </div>
+    </div>
+
+    <div id="todo" class="modal"><div class="modal-head"><span id="h_todo">Tasks</span> <i class="fas fa-times" onclick="closeModal('todo')"></i></div><div class="modal-body"><input id="t-in"><button class="btn-main" onclick="addTodo()">+</button><div id="t-list" style="margin-top:10px;"></div></div></div>
+    <div id="timer" class="modal"><div class="modal-head"><span id="h_timer">Timer</span> <i class="fas fa-times" onclick="closeModal('timer')"></i></div><div class="modal-body" style="text-align:center;"><h1 id="time-disp" style="font-size:4rem;margin:30px 0;">25:00</h1><button class="btn-main" onclick="startTimer()">Start</button><button class="btn-main" style="background:#f44336" onclick="resetTimer()">Reset</button></div></div>
+    <div id="sleep" class="modal"><div class="modal-head"><span id="h_sleep">Sleep</span> <i class="fas fa-times" onclick="closeModal('sleep')"></i></div><div class="modal-body"><input type="time" id="wake-time"><button class="btn-main" onclick="calcSleep()">Calc</button><h3 id="sleep-res" style="text-align:center;margin-top:20px;"></h3></div></div>
+    <div id="journal" class="modal"><div class="modal-head"><span id="h_journal">Journal</span> <i class="fas fa-times" onclick="closeModal('journal')"></i></div><div class="modal-body"><textarea id="j-txt" rows="10"></textarea><button class="btn-main" onclick="alert('Saved')">Save</button></div></div>
+    <div id="draw" class="modal"><div class="modal-head"><span id="h_draw">Draw</span> <i class="fas fa-times" onclick="closeModal('draw')"></i></div><div class="modal-body"><canvas id="canvas" width="300" height="400" style="border:1px solid #ccc;"></canvas><button class="btn-main" onclick="ctx.clearRect(0,0,300,400)" style="background:#f44336">Clear</button></div></div>
+    <div id="breath" class="modal"><div class="modal-head"><span id="h_breath">Breathe</span> <i class="fas fa-times" onclick="closeModal('breath')"></i></div><div class="modal-body"><div style="width:150px;height:150px;background:#4A90E2;border-radius:50%;margin:50px auto;animation:breathe 4s infinite;"></div></div></div>
+    <div id="bmi" class="modal"><div class="modal-head">BMI <i class="fas fa-times" onclick="closeModal('bmi')"></i></div><div class="modal-body"><input id="w" placeholder="Kg"><input id="h" placeholder="Cm"><button class="btn-main" onclick="calcBMI()">Check</button><h2 id="bmi-res" style="text-align:center;"></h2></div></div>
+    <div id="exam" class="modal"><div class="modal-head"><span id="h_exam">Exam</span> <i class="fas fa-times" onclick="closeModal('exam')"></i></div><div class="modal-body"><input type="date" id="e-date"><button class="btn-main" onclick="calcExam()">Calc</button><h2 id="e-res" style="text-align:center;"></h2></div></div>
+
 </div>
 
 <script>
-    const resources = {
+    // --- TRANSLATIONS ---
+    const dict = {
         en: {
-            intro: "👋 Hello! I can help you check your stress level. 🧘‍♂️<br>Please select your language. 🌐",
-            q1: "1. 😴 Rate your <b>Sleep Quality</b> (1-5)<br>1=Bad 😫 ... 5=Very Good 🤩",
-            q2: "2. 🤕 How many times a week do you suffer <b>headaches</b>?<br>1=Low 😌 ... 5=High 🤯",
-            q3: "3. 📚 How is your <b>Academic Performance</b>?<br>1=Poor 📉 ... 5=Excellent 🏆",
-            q4: "4. 🎒 How do you feel about your <b>Study Load</b>?<br>1=Light 🪶 ... 5=Heavy 🏋️",
-            q5: "5. ⚽ How many times a week do you do <b>Extracurricular Activities</b>? (1-5) 🎨",
-            result: "📊 Analysis complete...<br><br><b>🎯 Your stress level: {score}/5</b><br>{comment}<br><br><b>📉 Trend:</b> {trend}",
-            low: "✨ Your stress level is <b>Low</b>. Great job! 🌸",
-            mod: "⚠️ Your stress level is <b>Moderate</b>. Keep an eye on it. 👀",
-            high: "🚨 Your stress level is <b>High</b>. Please take a break! 🛌💆‍♂️",
-            restart: "🔄 Start Again",
-            trend_better: "🎉 Good news! Your stress is lower than last time. 📉",
-            trend_worse: "😟 Warning! Your stress is higher than last time. 📈",
-            trend_same: "⚖️ Your stress level is the same as last time.",
-            trend_first: "📝 This is your first record.",
-            reset_confirm: "⚠️ Are you sure you want to delete all history? 🗑️",
-            reset_done: "✅ History cleared."
+            greet:"Hi Student! 👋", btn_start:"Start Analysis", btn_home:"Home",
+            l_game:"Tic Tac AI", l_todo:"Tasks", l_timer:"Pomodoro", l_sleep:"Sleep", l_journal:"Journal", l_draw:"Draw", l_breath:"Breathe", l_bmi:"BMI", l_exam:"Exam", l_lang:"Language",
+            h_models:"Select Model", txt_model_inst:"Choose advisor:", m_friend:"Friend (Kind)", m_teacher:"Teacher (Strict)", m_zen:"Zen (Calm)",
+            h_game:"Tic Tac Toe", h_todo:"Tasks", h_timer:"Timer", h_sleep:"Sleep", h_journal:"Journal", h_draw:"Draw", h_breath:"Breathe", h_exam:"Exam", h_lang:"Language",
+            q_arr: ["Kindly rate your Sleep Quality? 😴", "How often do you get headaches? 🤕", "Rate your Academic Performance? 📊", "How heavy is your Study Load? 📚", "Do you do Extracurricular Activities? ⚽"],
+            res_norm:"Normal", res_stress:"High Stress",
+            adv_f_good:"Awesome! Life is good! 🎉", adv_f_bad:"Oh no! Need a break? 🤗",
+            adv_t_good:"Good. Keep studying. 📚", adv_t_bad:"Focus! Re-plan your day. 📏",
+            adv_z_good:"Peaceful mind. 🌸", adv_z_bad:"Breathe deeply. 🧘",
+            ttt_turn:"Your Turn (X)", ttt_win:"You Win!", ttt_lose:"AI Wins!", ttt_draw:"Draw!", btn_restart:"Restart"
         },
         si: {
-            intro: "👋 ආයුබෝවන්! මම ඔබේ ආතති මට්ටම (Stress Level) පරීක්ෂා කිරීමට උදව් කරන්නෙමි. 🧘‍♂️<br>කරුණාකර භාෂාවක් තෝරන්න. 🌐",
-            q1: "1. 😴 ඔබේ <b>නින්දේ ගුණාත්මකභාවය</b> (Sleep Quality) 1 සිට 5 දක්වා අගය කරන්න.<br>5 = ඉතා හොඳයි 🤩",
-            q2: "2. 🤕 සතියකට කී වතාවක් ඔබට <b>හිසරදය</b> (Headaches) ඇති වේද?<br>1 = ඉතා අඩු 😌 ... 5 = ඉතා වැඩි 🤯",
-            q3: "3. 📚 ඔබේ <b>අධ්‍යාපන කාර්ය සාධනය</b> (Academic Performance) කෙසේද?<br>1 = දුර්වල 📉 ... 5 = ඉතා හොඳ 🏆",
-            q4: "4. 🎒 ඔබේ <b>අධ්‍යයන බර</b> (Study Load) ඔබට දැනෙන්නේ කෙසේද?<br>1 = සැහැල්ලු 🪶 ... 5 = ඉතා බර 🏋️",
-            q5: "5. ⚽ සතියකට කී වතාවක් <b>බාහිර ක්‍රියාකාරකම්වල</b> (Extracurricular Activities) යෙදෙනවාද? (1-5) 🎨",
-            result: "📊 විශ්ලේෂණය අවසන්...<br><br><b>🎯 ඔබේ ආතති මට්ටම: {score}/5</b><br>{comment}<br><br><b>📉 පෙර වාර්තා සැසඳීම:</b> {trend}",
-            low: "✨ ඔබේ ආතති මට්ටම <b>අඩුයි</b> (Low). නියමයි! 🌸",
-            mod: "⚠️ ඔබේ ආතති මට්ටම <b>සාමාන්‍යයි</b> (Moderate). 👀",
-            high: "🚨 ඔබේ ආතති මට්ටම <b>වැඩියි</b> (High). විවේකයක් ගැනීම සුදුසුයි. 🛌💆‍♂️",
-            restart: "🔄 නැවත පටන් ගන්න",
-            trend_better: "🎉 හොඳයි! කලින් වතාවට වඩා අඩුවී ඇත. 📉",
-            trend_worse: "😟 පරිස්සම් වන්න! කලින් වතාවට වඩා වැඩිවී ඇත. 📈",
-            trend_same: "⚖️ කලින් වතාවට සමානයි.",
-            trend_first: "📝 මෙය ඔබගේ පළමු පරීක්ෂාවයි.",
-            reset_confirm: "⚠️ ඔබට සියලු ඉතිහාසය මැකීමට අවශ්‍ය බව විශ්වාසද? 🗑️",
-            reset_done: "✅ ඉතිහාසය මකා දමන ලදී."
+            greet:"ආයුබෝවන්! 👋", btn_start:"විශ්ලේෂණය", btn_home:"මුල් පිටුව",
+            l_game:"ටික් ටැක්", l_todo:"වැඩ", l_timer:"ටයිමර්", l_sleep:"නින්ද", l_journal:"දිනපොත", l_draw:"චිත්‍ර", l_breath:"හුස්ම", l_bmi:"BMI", l_exam:"විභාග", l_lang:"භාෂාව",
+            h_models:"AI තෝරන්න", txt_model_inst:"උපදෙස් දෙන්නේ:", m_friend:"යාලුවා", m_teacher:"ගුරුවරයා", m_zen:"Zen ගුරු",
+            h_game:"ටික් ටැක් ටෝ", h_todo:"වැඩ ලැයිස්තුව", h_timer:"ටයිමර්", h_sleep:"නින්ද", h_journal:"දිනපොත", h_draw:"චිත්‍ර", h_breath:"හුස්ම", h_exam:"විභාග", h_lang:"භාෂාව",
+            q_arr: ["නින්දේ තත්ත්වය කොහොමද? 😴", "හිසරදය හැදෙනවාද? 🤕", "අධ්‍යාපන මට්ටම හොඳද? 📊", "පාඩම් බර වැඩිද? 📚", "විනෝදාංශ කරනවාද? ⚽"],
+            res_norm:"සාමාන්‍යයි", res_stress:"ආතතිය",
+            adv_f_good:"නියමයි! සතුටින් ඉන්න! 🎉", adv_f_bad:"අයියෝ! විවේකයක් ගමු. 🤗",
+            adv_t_good:"හොඳයි. දිගටම කරන්න. 📚", adv_t_bad:"කාලසටහන වෙනස් කරන්න. 📏",
+            adv_z_good:"මනස සැහැල්ලුයි. 🌸", adv_z_bad:"ගැඹුරින් හුස්ම ගන්න. 🧘",
+            ttt_turn:"ඔබේ වාරය", ttt_win:"ඔබ දිනුවා!", ttt_lose:"AI දිනුවා!", ttt_draw:"සමයි!", btn_restart:"නැවත"
         },
         ta: {
-            intro: "👋 வணக்கம்! உங்கள் மன அழுத்த அளவை சரிபார்க்க நான் உதவ முடியும். 🧘‍♂️<br>மொழியைத் தேர்ந்தெடுக்கவும். 🌐",
-            q1: "1. 😴 உங்கள் <b>தூக்கத்தின் தரத்தை</b> மதிப்பிடவும் (1-5).<br>5 = மிக நல்லது 🤩",
-            q2: "2. 🤕 வாரத்திற்கு எத்தனை முறை <b>தலைவலி</b> ஏற்படுகிறது?<br>1 = மிகக் குறைவு 😌 ... 5 = மிக அதிகம் 🤯",
-            q3: "3. 📚 உங்கள் <b>கல்விச் செயல்பாடு</b> எப்படி உள்ளது?<br>1 = மோசம் 📉 ... 5 = மிக நன்று 🏆",
-            q4: "4. 🎒 உங்கள் <b>படிப்புச் சுமை</b> பற்றி என்ன நினைக்கிறீர்கள்?<br>1 = குறைவு 🪶 ... 5 = அதிகம் 🏋️",
-            q5: "5. ⚽ வாரத்திற்கு எத்தனை முறை <b>சாராத செயல்பாடுகளில்</b> ஈடுபடுகிறீர்கள்? (1-5) 🎨",
-            result: "📊 பகுப்பாய்வு முடிந்தது...<br><br><b>🎯 உங்கள் மன அழுத்த அளவு: {score}/5</b><br>{comment}<br><br><b>📉 ஒப்பீடு:</b> {trend}",
-            low: "✨ உங்கள் மன அழுத்தம் <b>குறைவு</b>. நன்று! 🌸",
-            mod: "⚠️ உங்கள் மன அழுத்தம் <b>மிதமானது</b>. 👀",
-            high: "🚨 உங்கள் மன அழுத்தம் <b>அதிகம்</b>. ஓய்வு தேவை. 🛌💆‍♂️",
-            restart: "🔄 மீண்டும் தொடங்க",
-            trend_better: "🎉 நல்லது! கடந்த முறையை விட குறைவு. 📉",
-            trend_worse: "😟 கவனம்! கடந்த முறையை விட அதிகம். 📈",
-            trend_same: "⚖️ கடந்த முறை போலவே உள்ளது.",
-            trend_first: "📝 இது உங்கள் முதல் பதிவு.",
-            reset_confirm: "⚠️ எல்லா வரலாற்றையும் நீக்க விரும்புகிறீர்களா? 🗑️",
-            reset_done: "✅ வரலாறு அழிக்கப்பட்டது."
+            greet:"வணக்கம்! 👋", btn_start:"தொடங்கவும்", btn_home:"முகப்பு",
+            l_game:"விளையாட்டு", l_todo:"வேலை", l_timer:"நேரம்", l_sleep:"தூக்கம்", l_journal:"குறிப்பு", l_draw:"ஓவியம்", l_breath:"மூச்சு", l_bmi:"BMI", l_exam:"தேர்வு", l_lang:"மொழி",
+            h_models:"AI தேர்வு", txt_model_inst:"ஆலோசகர்:", m_friend:"நண்பர்", m_teacher:"ஆசிரியர்", m_zen:"ஜென்",
+            h_game:"டிக் டாக் டோ", h_todo:"வேலைகள்", h_timer:"நேரம்", h_sleep:"தூக்கம்", h_journal:"குறிப்பு", h_draw:"ஓவியம்", h_breath:"மூச்சு", h_exam:"தேர்வு", h_lang:"மொழி",
+            q_arr: ["தூக்கம் எப்படி? 😴", "தலைவலி உள்ளதா? 🤕", "கல்வி நிலை? 📊", "படிப்பு சுமை? 📚", "விளையாட்டு? ⚽"],
+            res_norm:"சாதாரணம்", res_stress:"அழுத்தம்",
+            adv_f_good:"நன்று! மகிழுங்கள்! 🎉", adv_f_bad:"ஓய்வு எடுங்கள். 🤗",
+            adv_t_good:"நல்லது. படியுங்கள். 📚", adv_t_bad:"கவனம் தேவை. 📏",
+            adv_z_good:"அமைதி. 🌸", adv_z_bad:"மூச்சு விடுங்கள். 🧘",
+            ttt_turn:"உங்கள் முறை", ttt_win:"வெற்றி!", ttt_lose:"AI வெற்றி!", ttt_draw:"சமம்!", btn_restart:"மீண்டும்"
         }
     };
 
-    const questions = ['q1', 'q2', 'q3', 'q4', 'q5'];
-    
-    let currentStep = 0;
-    let answers = {};
-    let language = 'en';
+    let lang = 'en', currentModel = 'friend';
+    let qAnswers = [];
 
-    function addMessage(text, sender) {
-        const chatBox = document.getElementById('chat-box');
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message', sender === 'bot' ? 'bot-message' : 'user-message');
-        msgDiv.innerHTML = text;
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
+    function goHome() { document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id=='game') initTTT(); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function showView(id) { document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+    function setLang(l) {
+        lang = l;
+        let d = dict[l];
+        document.getElementById('greet').innerText = d.greet;
+        document.getElementById('btn-start').innerText = d.btn_start;
+        document.getElementById('btn-home').innerText = d.btn_home;
+        ['game','todo','timer','sleep','journal','draw','breath','bmi','exam','lang'].forEach(k => document.getElementById('l_'+k).innerText = d['l_'+k]);
+        ['models','game','todo','timer','sleep','journal','draw','breath','exam','lang'].forEach(k => { if(document.getElementById('h_'+k)) document.getElementById('h_'+k).innerText = d['h_'+k]; });
+        document.getElementById('txt-model-inst').innerText = d.txt_model_inst;
+        document.getElementById('m-friend').innerText = d.m_friend;
+        document.getElementById('m-teacher').innerText = d.m_teacher;
+        document.getElementById('m-zen').innerText = d.m_zen;
+        document.getElementById('ttt-msg').innerText = d.ttt_turn;
+        document.getElementById('btn-restart').innerText = d.btn_restart;
+        closeModal('settings');
     }
 
-    function init() {
-        document.getElementById('chat-box').innerHTML = '';
-        currentStep = 0;
-        answers = {};
-        language = 'en';
-        
-        addMessage("🌐 Please select a language / භාෂාව තෝරන්න / மொழியைத் தேர்ந்தெடுக்கவும்", 'bot');
-        showLanguageOptions();
+    function setModel(m) {
+        currentModel = m;
+        document.body.className = 'model-' + m;
+        let d = dict[lang];
+        let name = m==='friend'?d.m_friend : m==='teacher'?d.m_teacher : d.m_zen;
+        document.getElementById('model-disp').innerText = name;
+        closeModal('models');
     }
 
-    function showLanguageOptions() {
-        const inputArea = document.getElementById('input-area');
-        inputArea.innerHTML = '';
-        
-        const languages = [
-            { code: 'en', label: '🇺🇸 English' },
-            { code: 'si', label: '🇱🇰 සිංහල' },
-            { code: 'ta', label: '🇱🇰 தமிழ்' }
-        ];
-
-        languages.forEach(lang => {
-            const btn = document.createElement('button');
-            btn.classList.add('btn');
-            btn.innerHTML = lang.label;
-            btn.onclick = () => setLanguage(lang.code);
-            inputArea.appendChild(btn);
+    // --- TIC TAC TOE AI ---
+    let board = Array(9).fill(null), gameActive = true;
+    function initTTT() { board.fill(null); gameActive = true; renderTTT(); document.getElementById('ttt-msg').innerText = dict[lang].ttt_turn; }
+    function renderTTT() {
+        let b = document.getElementById('ttt-board'); b.innerHTML='';
+        board.forEach((c, i) => {
+            let d = document.createElement('div'); d.className = 'ttt-cell ' + (c ? 'taken' : '');
+            d.innerText = c || ''; d.onclick = () => playerMove(i);
+            b.appendChild(d);
         });
     }
-
-    function setLanguage(lang) {
-        language = lang;
-        const labels = { en: "🇺🇸 English", si: "🇱🇰 සිංහල", ta: "🇱🇰 தமிழ்" };
-        addMessage(labels[lang], 'user');
-        setTimeout(() => {
-             addMessage(resources[language].intro, 'bot');
-             setTimeout(() => {
-                 askQuestion();
-             }, 800);
-        }, 500);
+    function playerMove(i) {
+        if(!gameActive || board[i]) return;
+        board[i] = 'X'; renderTTT();
+        if(checkWin('X')) { endGame(dict[lang].ttt_win); return; }
+        if(!board.includes(null)) { endGame(dict[lang].ttt_draw); return; }
+        setTimeout(aiMove, 500);
     }
-
-    function askQuestion() {
-        const qKey = questions[currentStep];
-        addMessage(resources[language][qKey], 'bot');
-        showOptions();
+    function aiMove() {
+        if(!gameActive) return;
+        let empty = board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+        board[empty[Math.floor(Math.random() * empty.length)]] = 'O'; renderTTT();
+        if(checkWin('O')) { endGame(dict[lang].ttt_lose); return; }
+        if(!board.includes(null)) { endGame(dict[lang].ttt_draw); return; }
     }
+    function checkWin(p) { return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(c => board[c[0]]==p && board[c[1]]==p && board[c[2]]==p); }
+    function endGame(msg) { gameActive = false; document.getElementById('ttt-msg').innerText = msg; }
 
-    function showOptions() {
-        const inputArea = document.getElementById('input-area');
-        inputArea.innerHTML = '';
+    // --- SMART STRESS LOGIC ---
+    let qStep=0;
+    function startCheckup() { qStep=0; qAnswers=[]; showView('view-quiz'); loadQ(); }
+    function loadQ() { document.getElementById('q-text').innerText = dict[lang].q_arr[qStep]; }
+    function speakQ() { 
+        let txt = document.getElementById('q-text').innerText;
+        let u = new SpeechSynthesisUtterance(txt);
+        // Sinhala/Tamil TTS might not work in all browsers, defaults to English voice reading the text
+        window.speechSynthesis.speak(u);
+    }
+    function answer(v) {
+        qAnswers.push(v); qStep++;
+        if(qStep < 5) loadQ();
+        else finishQuiz();
+    }
+    function finishQuiz() {
+        showView('view-result');
+        // Logic: 
+        // 1. Sleep (High=Good) -> Reverse (5-v)
+        // 2. Headache (High=Bad) -> Direct (v)
+        // 3. Academic (High=Good) -> Reverse (5-v)
+        // 4. Load (High=Bad) -> Direct (v)
+        // 5. Extra (High=Good) -> Reverse (5-v)
+        let s = (5-qAnswers[0]) + qAnswers[1] + (5-qAnswers[2]) + qAnswers[3] + (5-qAnswers[4]);
+        let pct = Math.round((s/25)*100);
         
-        const optionsDiv = document.createElement('div');
-        optionsDiv.classList.add('options');
-        for (let i = 1; i <= 5; i++) {
-            const btn = document.createElement('button');
-            btn.classList.add('option-btn');
-            btn.innerText = i;
-            btn.onclick = () => handleInput(i);
-            optionsDiv.appendChild(btn);
-        }
-        inputArea.appendChild(optionsDiv);
-    }
-
-    function handleInput(value) {
-        const keyMap = ['sleep', 'headache', 'academic', 'load', 'extra'];
-        answers[keyMap[currentStep]] = value;
-
-        addMessage(value.toString(), 'user');
+        document.getElementById('res-score').innerText = pct + "%";
         
-        currentStep++;
-        if (currentStep < questions.length) {
-            setTimeout(() => {
-                askQuestion();
-            }, 500);
-        } else {
-            calculateStress();
-        }
-    }
-
-    function calculateStress() {
-        const intercept = 1.59;
-        const w_sleep = 0.18;
-        const w_head = -0.07;
-        const w_acad = -0.04;
-        const w_load = 0.38;
-        const w_extra = -0.015;
-
-        let score = intercept + 
-                    (w_sleep * answers.sleep) + 
-                    (w_head * answers.headache) + 
-                    (w_acad * answers.academic) + 
-                    (w_load * answers.load) + 
-                    (w_extra * answers.extra);
-
-        let roundedScore = Math.round(score);
-        if (roundedScore < 1) roundedScore = 1;
-        if (roundedScore > 5) roundedScore = 5;
-
-        const history = JSON.parse(localStorage.getItem('stress_bot_history')) || [];
-        const lastEntry = history.length > 0 ? history[history.length - 1] : null;
+        let d = dict[lang];
+        let good = pct < 50;
+        let advice = "";
         
-        let trendKey = "trend_first";
-        if (lastEntry) {
-            if (roundedScore < lastEntry.score) trendKey = "trend_better";
-            else if (roundedScore > lastEntry.score) trendKey = "trend_worse";
-            else trendKey = "trend_same";
-        }
-
-        history.push({ date: new Date().toISOString(), score: roundedScore });
-        localStorage.setItem('stress_bot_history', JSON.stringify(history));
-
-        let comment = "";
-        if (roundedScore <= 2) comment = resources[language].low;
-        else if (roundedScore === 3) comment = resources[language].mod;
-        else comment = resources[language].high;
-
-        const trendText = resources[language][trendKey];
-        const resultText = resources[language].result
-            .replace('{score}', roundedScore)
-            .replace('{comment}', comment)
-            .replace('{trend}', trendText);
-
-        setTimeout(() => {
-            addMessage(resultText, 'bot');
-            showRestartOption();
-        }, 800);
+        if(currentModel === 'friend') advice = good ? d.adv_f_good : d.adv_f_bad;
+        else if(currentModel === 'teacher') advice = good ? d.adv_t_good : d.adv_t_bad;
+        else advice = good ? d.adv_z_good : d.adv_z_bad;
+        
+        document.getElementById('res-advice').innerText = advice;
+        document.getElementById('res-status').innerText = good ? d.res_norm : d.res_stress;
     }
 
-    function showRestartOption() {
-        const inputArea = document.getElementById('input-area');
-        inputArea.innerHTML = '';
-        const btn = document.createElement('button');
-        btn.classList.add('btn');
-        btn.innerHTML = resources[language].restart;
-        btn.onclick = () => init();
-        inputArea.appendChild(btn);
-    }
+    // --- FEATURES ---
+    function addTodo() { let v=document.getElementById('t-in').value; if(v){document.getElementById('t-list').innerHTML+=`<div class='todo-item'>${v} <i class='fas fa-trash' onclick='this.parentElement.remove()'></i></div>`; document.getElementById('t-in').value='';} }
+    let tInt, tTime=1500;
+    function startTimer(){ if(!tInt) tInt=setInterval(()=>{ tTime--; let m=Math.floor(tTime/60),s=tTime%60; document.getElementById('time-disp').innerText=`${m}:${s<10?'0'+s:s}`; if(tTime<=0)resetTimer(); },1000); }
+    function resetTimer(){ clearInterval(tInt); tInt=null; tTime=1500; document.getElementById('time-disp').innerText="25:00"; }
+    function calcSleep(){ let t=document.getElementById('wake-time').value; if(t){ let d=new Date("2000-01-01 "+t); d.setMinutes(d.getMinutes()-450); document.getElementById('sleep-res').innerText=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); } }
+    function calcBMI(){ let w=document.getElementById('w').value, h=document.getElementById('h').value; if(w&&h) document.getElementById('bmi-res').innerText="BMI: "+(w/((h/100)**2)).toFixed(1); }
+    function calcExam(){ let d=new Date(document.getElementById('e-date').value); let diff=Math.ceil((d-new Date())/(1000*60*60*24)); document.getElementById('e-res').innerText=diff+" Days"; }
+    
+    const ctx = document.getElementById('canvas').getContext('2d');
+    let paint=false;
+    function draw(e){ if(!paint)return; e.preventDefault(); let r=e.target.getBoundingClientRect(); let x=(e.clientX||e.touches[0].clientX)-r.left, y=(e.clientY||e.touches[0].clientY)-r.top; ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y); }
+    const cvs = document.getElementById('canvas');
+    cvs.addEventListener('mousedown',()=>{paint=true}); cvs.addEventListener('mouseup',()=>{paint=false;ctx.beginPath()}); cvs.addEventListener('mousemove',draw);
+    cvs.addEventListener('touchstart',(e)=>{paint=true;draw(e)}); cvs.addEventListener('touchend',()=>{paint=false;ctx.beginPath()}); cvs.addEventListener('touchmove',draw);
 
-    function showResetModal() {
-        const modal = document.getElementById('resetModal');
-        const text = document.getElementById('modalText');
-        const langCode = language || 'en';
-        text.innerHTML = resources[langCode].reset_confirm;
-        modal.style.display = 'flex';
-    }
-
-    function closeResetModal() {
-        document.getElementById('resetModal').style.display = 'none';
-    }
-
-    function confirmReset() {
-        localStorage.removeItem('stress_bot_history');
-        closeResetModal();
-        alert(resources[language || 'en'].reset_done);
-        init();
-    }
-
-    window.onload = init;
+    document.styleSheets[0].insertRule(`@keyframes breathe { 0%,100% {transform:scale(1)} 50% {transform:scale(1.5)} }`,0);
 </script>
-
 </body>
 </html>
